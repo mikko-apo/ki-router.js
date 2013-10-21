@@ -20,8 +20,6 @@ limitations under the License.
 
 # Missing features:
 # - $("a").click does not register but $("a")[0].click does
-# - copy build configs from bacon.js
-# - split to own repository
 # - more complete sinatra path parsing, JavascriptRouteParser
 # - test suite
 # - documentation

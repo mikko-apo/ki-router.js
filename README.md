@@ -3,6 +3,21 @@
 Sinatra uses a powerful url based routing syntax to identify different views in the application. Javascript
 single page apps can benefit from the same by using ki-router.js.
 
+# Features
+
+ki-router.js makes it relative easy
+
+* Bookmarkable urls are easy to implement
+* Provides a centralized control structure for the application
+* Removes the need to bind view change listeners in javascript
+* Plain HTML with regular a href links
+
+* Supports history.pushState and hashbang (#!). Is able to convert urls between those two formats if urls are copied between browsers.
+* Gracefully degrading web app (pushState -> hashBang -> no javascript)
+* Supports ctrl, shift, alt and meta keys so users can open new tabs and windows easily
+* Supports A tag's target attribute: ___blank, ___self, ___parent, ___top, window name
+* Attaches listeners to document level, does not interfere with events handled by application
+
 # How to use it?
 
 First you'll need a HTML fragment that contains regular a links:
@@ -49,14 +64,7 @@ router.initRouting() sets up the routing on the browser:
 * it registers a listener to handle url back & forward buttons: by using onpopstate or onhashchange
 * it renders the view based on the current url
 
-# Features
+Note:
 
-* Bookmarkable urls are easy to implement
-* Supports history.pushState and hashbang (#!). Is able to convert urls between those two formats if urls are copied between browsers.
-* Provides a centralized control structure for the application
-* Removes the need to bind view change listeners in javascript
-* Plain HTML with regular a href links
-* Gracefully degrading web app (pushState -> hashBang -> no javascript)
-* Supports ctrl, shift, alt and meta keys so users can open new tabs and windows easily
-* Supports A tag's target attribute: ___blank, ___self, ___parent, ___top, window name
-* Attaches listeners to document level, does not interfere with events handled by application
+To enable bookmarkable urls, you need to configure the backend server with a wildcard url that returns the main page
+for all possible urls. That page should load the router configuration then router.initRouting() renders the correct page.
