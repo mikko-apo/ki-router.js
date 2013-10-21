@@ -1,7 +1,7 @@
 # Sinatra route syntax + pushState/hashbang support + plain urls
 
 Sinatra uses a powerful url based routing syntax to identify different views in the application. Javascript
-single page apps can benefit from the same by using walter-js.
+single page apps can benefit from the same by using ki-router.js.
 
 # How to use it?
 
@@ -12,7 +12,7 @@ First you'll need a HTML fragment that contains regular a links:
         Component: <a href="/repository/component/ki/demo">ki/demo</a>
     </p>
 
-Then you need to include walter.js
+Then you need to include ki-router.js
 
     <script type="text/javascript" src="ki-router.js"></script>
 
