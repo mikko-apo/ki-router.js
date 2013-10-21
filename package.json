@@ -1,0 +1,39 @@
+{
+  "name": "ki-router.js",
+  "version": "0.0.0",
+  "author": {
+    "name": "Mikko Apo",
+     "email": "mikko.apo@gmail.com",
+     "url": "https://github.com/mikko-apo/ki-router.js"
+  },
+  "contributors": [
+  ],
+  "licenses": [
+    "Apache V2.0"
+  ],
+  "dependencies": {},
+  "devDependencies": {
+    "jasmine-node": "~1.4.0",
+    "coffee-script": "~1.6.3",
+    "grunt": "0.4",
+    "grunt-cli": "0.1.6",
+    "grunt-contrib-coffee": "~0.7.0",
+    "grunt-contrib-clean": "~0.4.1",
+    "grunt-contrib-copy": "~0.4.1",
+    "benchmark": "1.0.0",
+    "sinon": "~1.6.0",
+    "grunt-contrib-uglify": "~0.2.2",
+    "chai": "1.6.0",
+    "mocha": "1.10.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mikko-apo/ki-router.js.git"
+  },
+  "homepage": "https://github.com/mikko-apo/ki-router.js",
+  "scripts": {
+    "test": "./node_modules/mocha/bin/mocha --compilers coffee:coffee-script spec/*Spec.coffee",
+    "pre-publish": "grunt"
+  },
+  "main": "dist/ki-router.js"
+}

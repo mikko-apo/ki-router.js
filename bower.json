@@ -1,0 +1,28 @@
+{
+  "name": "ki-router",
+  "version": "0.0.0",
+  "authors": [
+    "Mikko Apo <mikko.apo@gmail.com>"
+  ],
+  "description": "Javascript url router that combines Sinatra url syntax, pushState/hashbang support and plain html urls.",
+  "main": "ki-route.js",
+  "keywords": [
+    "Router",
+    "Sinatra",
+    "pushState",
+    "history",
+    "ki-router",
+    "ki-router.js"
+  ],
+  "license": "Apache License, Version 2.0",
+  "homepage": "https://github.com/mikko-apo/ki-route.js",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "devDependencies": {
+  }
+}
