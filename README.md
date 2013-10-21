@@ -3,20 +3,29 @@
 Sinatra uses a powerful url based routing syntax to identify different views in the application. Javascript
 single page apps can benefit from the same by using ki-router.js.
 
-# Features
+# Why should you use it?
 
-ki-router.js makes it relative easy
+ki-router.js makes it relative easy to implement a modern single page app that supports clean REST-like bookmarkable
+urls.
 
-* Bookmarkable urls are easy to implement
-* Provides a centralized control structure for the application
-* Removes the need to bind view change listeners in javascript
+To use it all you need to do to is:
+
+* Use regular HTML links
+* Include ki-router.js
+* Configure router routes
+* Configure backend server to return the same page for all possible urls
+
+In return you get:
+
+* Bookmarkable and clean urls
+* Centralized and clear control structure for the application
+* Cleaner javascript, there is no more need to bind view change listeners in javascript
 * Plain HTML with regular a href links
-
-* Supports history.pushState and hashbang (#!). Is able to convert urls between those two formats if urls are copied between browsers.
-* Gracefully degrading web app (pushState -> hashBang -> no javascript)
-* Supports ctrl, shift, alt and meta keys so users can open new tabs and windows easily
-* Supports A tag's target attribute: ___blank, ___self, ___parent, ___top, window name
-* Attaches listeners to document level, does not interfere with events handled by application
+* history.pushState and hashbang (#!) support. ki-route.js is able to convert urls between those two formats if urls are copied between browsers.
+* Gracefully degrading web app (pushState -> hashBang -> javascript but no pushState/hashBang -> no javascript)
+* Support for browser keyboard shortcuts so users can open new tabs and windows easily: ctrl, shift, alt and meta keys
+* Support for A tag's target attribute: ___blank, ___self, ___parent, ___top, window name
+* Simple integration with other javascript frameworks. Attaches listeners to document level, does not interfere with events handled by application's javascript
 
 # How to use it?
 
