@@ -67,4 +67,8 @@ router.initRouting() sets up the routing on the browser:
 Note:
 
 To enable bookmarkable urls, you need to configure the backend server with a wildcard url that returns the main page
-for all possible urls. That page should load the router configuration then router.initRouting() renders the correct page.
+for all possible urls. That page should load the router configuration and then router.initRouting() renders the correct page.
+
+    get '/*' do
+      erb :repository_page
+    end
