@@ -24,7 +24,7 @@ Routing configuration defines how different urls are rendered
     router.add("/say/*/to/:name", function (params) { say_hello( params.splat, params.name ) } );
     router.fallbackRoute = function (url) { alert("Unknown route: " + url) };
     router.hashBaseUrl = "/repository";
-    router.paramVerifier = function (s) { /^[a-z0-9\/]+$/i.test(s) }
+    router.paramVerifier = function (s) { /^[a-z0-9\/]+$/i.test(s) };
     // router.debug = true
     router.initRouting();
 
