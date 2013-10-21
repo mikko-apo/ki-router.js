@@ -81,3 +81,9 @@ for all possible urls. That page should load the router configuration and then r
     get '/*' do
       erb :repository_page
     end
+
+# Which version to use?
+
+* Bower: bower install --save ki-router
+* Coffeescript (original source): [ki-router.coffee](https://raw.github.com/mikko-apo/ki-router.js/master/src/ki-router.coffee)
+* Javascript (original source): [ki-router.js](https://raw.github.com/mikko-apo/ki-router.js/master/dist/ki-router.js)
