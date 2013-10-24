@@ -21,16 +21,18 @@ limitations under the License.
   var KiRouter, KiRoutes, SinatraRouteParser,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
+  KiRouter = {};
+
   if (typeof module !== "undefined" && module !== null) {
-    module.exports = KiRouter = {};
+    module.exports = KiRouter;
     KiRouter.KiRouter = KiRouter;
   } else {
     if ((typeof define !== "undefined" && define !== null) && (define.amd != null)) {
-      define((function() {
+      define([], function() {
         return KiRouter;
-      }));
+      });
     }
-    this.KiRouter = KiRouter = {};
+    this.KiRouter = KiRouter;
   }
 
   KiRouter.router = function() {
