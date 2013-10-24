@@ -35,13 +35,14 @@ limitations under the License.
 # - hashbang urls don't work in a href tags -> won't fix, use /plain/urls
 # - does not resolve situation hashbang url needs to be converted and both window.location.pathname and window.location.hash are defined
 
+KiRouter = {}
 if module?
-  module.exports = KiRouter = {} # for KiRouter = require 'KiRouterjs'
+  module.exports = KiRouter # for KiRouter = require 'KiRouterjs'
   KiRouter.KiRouter = KiRouter # for {KiRouter} = require 'KiRouterjs'
 else
   if define? and define.amd?
-    define (-> KiRouter)
-  @KiRouter = KiRouter = {} # otherwise for execution context
+    define [], -> KiRouter
+  @KiRouter = KiRouter # otherwise for execution context
 
 KiRouter.router = -> new KiRoutes()
 
