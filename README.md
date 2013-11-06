@@ -1,33 +1,63 @@
 # Sinatra route syntax + pushState/hashbang support + plain urls
 
-Sinatra uses a powerful url based routing syntax to identify different views in the application. Javascript
-single page apps can benefit from the same by using ki-router.js.
+Sinatra defined a powerful url routing syntax that is used to identify different views in the application and the
+parameters used by the view. Javascript single page apps can benefit from the same by using ki-router.js.
 
 # Why should you use it?
 
 ki-router.js makes it relative easy to implement a modern single page app that supports clean REST-like bookmarkable
-urls.
+urls. It supports two kinds of single page app modes:
+
+* transparent
+* hashbang
 
 To use it all you need to do to is:
 
-* Use regular HTML links
+* Use plain HTML with regular a href links
 * Include ki-router.js
 * Configure router routes
-* Configure backend server to return the same page for all possible urls
+* (For transparent mode you need to configure backend server to return the same page for all possible urls)
 
 In return you get:
 
-* Bookmarkable and clean urls
+* Bookmarkable and clean REST like urls
+* Url parameter parsing
 * Centralized and clear control structure for the application
 * Cleaner javascript, there is no more need to bind view change listeners in javascript
-* Plain HTML with regular a href links
-* history.pushState and hashbang (#!) support. ki-route.js is able to convert urls between those two formats if urls are copied between browsers.
-* Gracefully degrading web app (pushState -> hashBang -> javascript but no pushState/hashBang -> no javascript)
+
+Additional technical features include:
+
 * Support for browser keyboard shortcuts so users can open new tabs and windows easily: ctrl, shift, alt and meta keys
 * Support for A tag's target attribute: ___blank, ___self, ___parent, ___top, window name
 * Simple integration with other javascript frameworks. Attaches listeners to document level, does not interfere with events handled by application's javascript
 
+# Two modes of operation
+
+## Transparent mode
+
+Transparent mode uses HTML5 History API to simulate a regular link based web app. It intercepts clicks to A tags and
+if it knows the url it renders the correct view and changes the browser url.
+If the browser doesn't support the History Api, it switches to using hashbangs.
+If don't like hashbangs in the url, use this mode.
+
+Additional things to consider:
+
+* history.pushState and hashbang (#!) support. ki-route.js is able to convert urls between those two formats if urls are copied between browsers.
+* Gracefully degrading web app (pushState -> hashBang -> javascript but no pushState/hashBang -> no javascript)
+* If the browser doesn't support javascript all links will lead back to server and server needs to render the correct page
+* Backend server needs to have a wildcard url that returns the same page for all possible links
+
+## Hashbang mode
+
+Hashbang mode is useful if you either prefer hashbang urls or want to serve your application from single url
+
+Additional things to consider:
+* Links in HTML document can be in either plain format or prefixed with "#!". Both of these will work: "/path/123" and "#!/path/123"
+* There is no fallback for browsers without "onhashchange" support or browsers without javascript support
+
 # How to use it?
+
+## HTML
 
 First you'll need a HTML fragment that contains regular a links:
 
@@ -40,6 +70,8 @@ Then you need to include ki-router.js
 
     <script type="text/javascript" src="ki-router.js"></script>
 
+## Router configuration
+
 Routing configuration defines how different urls are rendered
 
     router = KiRouter.router();
@@ -50,7 +82,7 @@ Routing configuration defines how different urls are rendered
     router.hashBaseUrl = "/repository";
     router.paramVerifier = function (s) { /^[a-z0-9\/]+$/i.test(s) };
     // router.debug = true
-    router.initRouting();
+    router.transparentRouting();
 
 router.add(urlPattern, function) defines url pattern and a function that is executed if the specific url is used.
 Routes are matched in the order they are defined. The first route that matches the url is invoked. Route patterns may
@@ -82,7 +114,7 @@ for all possible urls. That page should load the router configuration and then r
       erb :repository_page
     end
 
-# Which version to use?
+# Install
 
 * Bower: bower install --save ki-router
 * Coffeescript (original source): [src/ki-router.coffee](https://raw.github.com/mikko-apo/ki-router.js/master/src/ki-router.coffee)

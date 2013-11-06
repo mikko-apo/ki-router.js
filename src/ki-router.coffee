@@ -19,6 +19,7 @@ limitations under the License.
 "use strict"
 
 # Missing features:
+# - hashtagmode for real single page apps
 # - $("a").click does not register but $("a")[0].click does
 # - more complete sinatra path parsing, JavascriptRouteParser
 # - test suite
