@@ -73,7 +73,7 @@ class KiRoutes
   fallbackRoute: false
   init: false
   paramVerifier: false
-  initRouting: () =>
+  transparentRouting: () =>
     @init = true
     try
       @attachClickListener()
