@@ -52,7 +52,8 @@ limitations under the License.
       this.findATag = __bind(this.findATag, this);
       this.leftMouseButton = __bind(this.leftMouseButton, this);
       this.attachClickListener = __bind(this.attachClickListener, this);
-      this.initRouting = __bind(this.initRouting, this);
+      this.hashbangRouting = __bind(this.hashbangRouting, this);
+      this.transparentRouting = __bind(this.transparentRouting, this);
       this.find = __bind(this.find, this);
       this.exec = __bind(this.exec, this);
       this.add = __bind(this.add, this);
@@ -118,7 +119,7 @@ limitations under the License.
 
     KiRoutes.prototype.paramVerifier = false;
 
-    KiRoutes.prototype.initRouting = function() {
+    KiRoutes.prototype.transparentRouting = function() {
       this.init = true;
       try {
         this.attachClickListener();
@@ -127,6 +128,14 @@ limitations under the License.
       } finally {
         this.init = false;
       }
+    };
+
+    KiRoutes.prototype.hashbangRouting = function() {
+      this.pushStateSupport = false;
+      if (!this.hashchangeSupport) {
+        throw new Error("No hashchange support!");
+      }
+      return this.transparentRouting();
     };
 
     KiRoutes.prototype.attachClickListener = function() {
