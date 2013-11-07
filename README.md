@@ -119,3 +119,7 @@ for all possible urls. That page should load the router configuration and then r
 * Bower: bower install --save ki-router
 * Coffeescript (original source): [src/ki-router.coffee](https://raw.github.com/mikko-apo/ki-router.js/master/src/ki-router.coffee)
 * Javascript: [dist/ki-router.js](https://raw.github.com/mikko-apo/ki-router.js/master/dist/ki-router.js)
+
+# Release History
+
+* 2013-11-07 1.0.0 Supports now two modes "transparent" and "hashbang"
