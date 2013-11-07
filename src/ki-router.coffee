@@ -19,7 +19,6 @@ limitations under the License.
 "use strict"
 
 # Missing features:
-# - hashtagmode for real single page apps
 # - $("a").click does not register but $("a")[0].click does
 # - more complete sinatra path parsing, JavascriptRouteParser
 # - test suite
@@ -81,6 +80,11 @@ class KiRoutes
       @renderInitialView()
     finally
       @init = false
+  hashbangRouting: () =>
+    @pushStateSupport = false
+    if !@hashchangeSupport
+      throw new Error("No hashchange support!")
+    @transparentRouting()
 
   attachClickListener: =>
     if @pushStateSupport || @hashchangeSupport
