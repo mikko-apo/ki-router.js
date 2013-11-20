@@ -100,7 +100,6 @@ is used to render HTML. Attacker may otherwise encode HTML in the url that is re
 
 router.initRouting() sets up the routing on the browser:
 
-* it switches browser url between pushState and hashBang if needed
 * it registers a click handler for A tags that handles all clicks to known links
 * it registers a listener to handle url back & forward buttons: by using onpopstate or onhashchange
 * it renders the view based on the current url
@@ -122,4 +121,5 @@ for all possible urls. That page should load the router configuration and then r
 
 # Release History
 
+* 2013-11-20 1.1.0 renderInitialView does not change url format automatically anymore
 * 2013-11-07 1.0.0 Supports now two modes "transparent" and "hashbang"

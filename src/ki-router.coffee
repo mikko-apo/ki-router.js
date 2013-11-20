@@ -95,6 +95,10 @@ class KiRoutes
           if aTag && @leftMouseButton(event) && !@metakeyPressed(event) && @targetAttributeIsCurrentWindow(aTag) && @targetHostSame(aTag)
             href = aTag.attributes.href.nodeValue
             @log("Processing click", href)
+            if !@pushStateSupport && @hashchangeSupport && @hashBaseUrl && @hashBaseUrl != window.location.pathname
+              event.preventDefault();
+              window.location.href = @hashBaseUrl + "#!" + href
+              return
             if @exec(href)
               @log("New url", href)
               event.preventDefault();
@@ -148,22 +152,14 @@ class KiRoutes
   renderInitialView: =>
     @log("Rendering initial page")
     initialUrl = window.location.pathname
-    forceUrlUpdate = false
     if @pushStateSupport
       if window.location.hash.substring(0, 2) == "#!" && @find(window.location.hash.substring(2))
-        forceUrlUpdate = initialUrl = window.location.hash.substring(2)
+        initialUrl = window.location.hash.substring(2)
     else
       if @hashchangeSupport
-        if window.location.hash == "" && @find(initialUrl)
-          if @hashBaseUrl && @hashBaseUrl != initialUrl
-            window.location.href = @hashBaseUrl + "#!" + initialUrl
-          else
-            window.location.hash = "!" + initialUrl
         if window.location.hash.substring(0, 2) == "#!"
           initialUrl = window.location.hash.substring(2)
     @renderUrl(initialUrl)
-    if forceUrlUpdate
-      @updateUrl(forceUrlUpdate)
 
   renderUrl: (url) =>
     try
@@ -240,4 +236,3 @@ class SinatraRouteParser
     typeof value.length is 'number' and
     typeof value.splice is 'function' and
     not ( value.propertyIsEnumerable 'length' )
-
