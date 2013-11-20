@@ -149,6 +149,11 @@ limitations under the License.
             if (aTag && _this.leftMouseButton(event) && !_this.metakeyPressed(event) && _this.targetAttributeIsCurrentWindow(aTag) && _this.targetHostSame(aTag)) {
               href = aTag.attributes.href.nodeValue;
               _this.log("Processing click", href);
+              if (!_this.pushStateSupport && _this.hashchangeSupport && _this.hashBaseUrl && _this.hashBaseUrl !== window.location.pathname) {
+                event.preventDefault();
+                window.location.href = _this.hashBaseUrl + "#!" + href;
+                return;
+              }
               if (_this.exec(href)) {
                 _this.log("New url", href);
                 event.preventDefault();
@@ -229,32 +234,21 @@ limitations under the License.
     };
 
     KiRoutes.prototype.renderInitialView = function() {
-      var forceUrlUpdate, initialUrl;
+      var initialUrl;
       this.log("Rendering initial page");
       initialUrl = window.location.pathname;
-      forceUrlUpdate = false;
       if (this.pushStateSupport) {
         if (window.location.hash.substring(0, 2) === "#!" && this.find(window.location.hash.substring(2))) {
-          forceUrlUpdate = initialUrl = window.location.hash.substring(2);
+          initialUrl = window.location.hash.substring(2);
         }
       } else {
         if (this.hashchangeSupport) {
-          if (window.location.hash === "" && this.find(initialUrl)) {
-            if (this.hashBaseUrl && this.hashBaseUrl !== initialUrl) {
-              window.location.href = this.hashBaseUrl + "#!" + initialUrl;
-            } else {
-              window.location.hash = "!" + initialUrl;
-            }
-          }
           if (window.location.hash.substring(0, 2) === "#!") {
             initialUrl = window.location.hash.substring(2);
           }
         }
       }
-      this.renderUrl(initialUrl);
-      if (forceUrlUpdate) {
-        return this.updateUrl(forceUrlUpdate);
-      }
+      return this.renderUrl(initialUrl);
     };
 
     KiRoutes.prototype.renderUrl = function(url) {
