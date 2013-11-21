@@ -30,6 +30,7 @@ Additional technical features include:
 * Support for browser keyboard shortcuts so users can open new tabs and windows easily: ctrl, shift, alt and meta keys
 * Support for A tag's target attribute: ___blank, ___self, ___parent, ___top, window name
 * Simple integration with other javascript frameworks. Attaches listeners to document level, does not interfere with events handled by application's javascript
+* No dependencies on other javascript libraries
 
 # Two modes of operation
 
@@ -38,7 +39,7 @@ Additional technical features include:
 Transparent mode uses HTML5 History API to simulate a regular link based web app. It intercepts clicks to A tags and
 if it knows the url it renders the correct view and changes the browser url.
 If the browser doesn't support the History Api, it switches to using hashbangs.
-If don't like hashbangs in the url, use this mode.
+If you don't like hashbangs in the url, use this mode.
 
 Additional things to consider:
 
