@@ -36,6 +36,8 @@ limitations under the License.
 # - does not resolve situation hashbang url needs to be converted and both window.location.pathname and window.location.hash are defined
 
 KiRouter = {}
+KiRouter.version = '<version>'
+
 if module?
   module.exports = KiRouter # for KiRouter = require 'KiRouterjs'
   KiRouter.KiRouter = KiRouter # for {KiRouter} = require 'KiRouterjs'

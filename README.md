@@ -122,5 +122,6 @@ for all possible urls. That page should load the router configuration and then r
 
 # Release History
 
+* 2013-11-20 1.1.1 Added KiRouter.version that is updated automatically for releases
 * 2013-11-20 1.1.0 renderInitialView does not change url format automatically anymore
 * 2013-11-07 1.0.0 Supports now two modes "transparent" and "hashbang"
