@@ -39,7 +39,7 @@ Additional technical features include:
 Transparent mode uses HTML5 History API to simulate a regular link based web app. It intercepts clicks to A tags and
 if it knows the url it renders the correct view and changes the browser url.
 If the browser doesn't support the History Api, it switches to using hashbangs.
-If you don't like hashbangs in the url, use this mode.
+If you don't like hashbangs in the url (except as a fallback), use this mode.
 
 Additional things to consider:
 
