@@ -50,26 +50,32 @@ KiRouter.router = -> new KiRoutes()
 
 class KiRoutes
   routes: []
+  postExecutionListeners: []
   debug: false
   log: =>
     if @debug
       console.log.apply(this, arguments)
-  add: (urlPattern, fn) =>
-    @routes.push({route: new SinatraRouteParser(urlPattern), fn: fn, urlPattern: urlPattern})
+  add: (urlPattern, fn, metadata) =>
+    @routes.push({route: new SinatraRouteParser(urlPattern), fn: fn, urlPattern: urlPattern, metadata: metadata})
   exec: (path) =>
-    if matchedRoute = @find(path)
-      @log("Found route for", path, " Calling function with params ", matchedRoute.params)
-      matchedRoute.result = matchedRoute.fn(matchedRoute.params)
-      return matchedRoute
+    if matched = @find(path)
+      @log("Found route for", path, " Calling function with params ", matched.params)
+      matched.result = matched.fn(matched.params)
+      for listener in @postExecutionListeners
+        listener(matched, @previous)
+      @previous = matched
+      return matched
   find: (path) =>
     for candidate in @routes
       if params = candidate.route.parse(path, @paramVerifier)
-        return {params: params, route: candidate.matchedRoute, fn: candidate.fn, urlPattern: candidate.urlPattern}
+        return {params: params, route: candidate.matchedRoute, fn: candidate.fn, urlPattern: candidate.urlPattern, path: path, metadata: candidate.metadata}
+  addPostExecutionListener: (fn) =>
+    @postExecutionListeners.push(fn)
 
   pushStateSupport: history && history.pushState
   hashchangeSupport: "onhashchange" of window
   hashBaseUrl: false
-  previousView: false
+  previous: false
   disableUrlUpdate: false
   fallbackRoute: false
   init: false
@@ -104,7 +110,6 @@ class KiRoutes
             if @exec(href)
               @log("New url", href)
               event.preventDefault();
-              @previousView = href
               @updateUrl(href)
 
   leftMouseButton: (event) =>
@@ -147,7 +152,7 @@ class KiRoutes
         @addListener window, "hashchange", (event) =>
           if window.location.hash.substring(0, 2) == "#!"
             href = window.location.hash.substring(2)
-            if href != @previousView
+            if !@previous || href != @previous.path
               @log("Rendering onhashchange", href)
               @renderUrl(href)
 
