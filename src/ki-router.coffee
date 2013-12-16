@@ -24,7 +24,9 @@ limitations under the License.
 # - test suite
 # - documentation
 # Possible features
-# - clarify when fallbackRoute is used
+# - clarify when fallbackRoute is used or if it is needed
+# - postExecutionListener gets access to exception during exec
+# - executed function gets access to full matched information
 # - relative url support is tricky to get right. What if application is served urls with splat?
 # - querystring parameters as part of params. How should they interract with #! support?
 # - form support, catch form submits (how would this work?) get / post?

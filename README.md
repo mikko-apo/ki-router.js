@@ -132,7 +132,7 @@ Listener callback gets two parameters that are the route information of the curr
 * Javascript: [dist/ki-router.js](https://raw.github.com/mikko-apo/ki-router.js/master/dist/ki-router.js)
 
 # Release History
-* 2013-12-09 1.1.2 Add support for intercepting route triggering and route metadata
+* 2013-12-16 1.1.2 Add support for listening route triggering. It's also possible to define metadata for routes
 * 2013-11-20 1.1.1 Added KiRouter.version that is updated automatically for releases
 * 2013-11-20 1.1.0 renderInitialView does not change url format automatically anymore
 * 2013-11-07 1.0.0 Supports now two modes "transparent" and "hashbang"

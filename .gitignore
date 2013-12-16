@@ -30,6 +30,7 @@ pkg
 .rakeTasks
 spec/coverage
 .idea/
+ki-router.js.iml
 
 # osx
 .DS_Store
