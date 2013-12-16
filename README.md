@@ -119,8 +119,8 @@ for all possible urls. That page should load the router configuration and then r
 It's possible to add metadata information to routes. This metadata is available for postExecutionListener and
 it can be used for for example Google Analytics
 
-   router.add("/repository", function (params) { show_components( ) } );
-   router.add("/repository/component/*", function (params) { show_component( params.splat ) }, {ga: "Component"} );
+    router.add("/repository", function (params) { show_components( ) } );
+    router.add("/repository/component/*", function (params) { show_component( params.splat ) }, {ga: "Component"} );
 
 ## Routing events
 
