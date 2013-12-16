@@ -85,7 +85,7 @@ Routing configuration defines how different urls are rendered
     // router.debug = true
     router.transparentRouting();
 
-router.add(urlPattern, function) defines url pattern and a function that is executed if the specific url is used.
+router.add(urlPattern, function, metadata) defines url pattern and a function that is executed if the specific url is used. It is also possible to attach a metadata object to the route that can contain useful information for intercepting the triggered route. This can be for example analytics information.
 Routes are matched in the order they are defined. The first route that matches the url is invoked. Route patterns may
 include named parameters or wildcard (*) parameters. Named parameters are accessible from the params with _params.name_
 and wildcard parameters are available from _params.splat_. If the url pattern contains multiple instances of named
@@ -114,6 +114,17 @@ for all possible urls. That page should load the router configuration and then r
       erb :repository_page
     end
 
+## Routing events
+
+It is possible to listen for triggered routes by registering an listener function that is valled each time the route has been triggered.
+
+    router.addPostExecutionListener(function(matched, previous) {
+        console.log(previousRoute)
+        console.log(route)
+    })
+
+Listener callback gets two parameters that are the route information of the currently triggered route and the previous route.
+
 # Install
 
 * Bower: bower install --save ki-router
@@ -121,7 +132,7 @@ for all possible urls. That page should load the router configuration and then r
 * Javascript: [dist/ki-router.js](https://raw.github.com/mikko-apo/ki-router.js/master/dist/ki-router.js)
 
 # Release History
-
+* 2013-12-09 1.1.2 Add support for intercepting route triggering and route metadata
 * 2013-11-20 1.1.1 Added KiRouter.version that is updated automatically for releases
 * 2013-11-20 1.1.0 renderInitialView does not change url format automatically anymore
 * 2013-11-07 1.0.0 Supports now two modes "transparent" and "hashbang"

@@ -29,6 +29,7 @@ pkg
 # idea
 .rakeTasks
 spec/coverage
+.idea/
 
 # osx
 .DS_Store
