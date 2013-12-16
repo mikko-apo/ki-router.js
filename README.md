@@ -99,7 +99,9 @@ Browser is redirected to that address and application pages are rendered using t
 router.paramVerifier is a function that can be used to sanitize all the parameters. This is useful if any of the parameters
 is used to render HTML. Attacker may otherwise encode HTML in the url that is rendered to the page.
 
-router.initRouting() sets up the routing on the browser:
+### Transparent routing
+
+router.transparentRouting() sets up the routing on the browser:
 
 * it registers a click handler for A tags that handles all clicks to known links
 * it registers a listener to handle url back & forward buttons: by using onpopstate or onhashchange
@@ -108,11 +110,15 @@ router.initRouting() sets up the routing on the browser:
 Note:
 
 To enable bookmarkable urls, you need to configure the backend server with a wildcard url that returns the main page
-for all possible urls. That page should load the router configuration and then router.initRouting() renders the correct page.
+for all possible urls. That page should load the router configuration and then router.transparentRouting() renders the correct page.
 
     get '/*' do
       erb :repository_page
     end
+
+### Hashbang routing
+
+    router.hashbangRouting()
 
 ## Route metadata
 
