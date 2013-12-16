@@ -23,7 +23,7 @@ limitations under the License.
 
   KiRouter = {};
 
-  KiRouter.version = '1.1.1';
+  KiRouter.version = '1.1.2';
 
   if (typeof module !== "undefined" && module !== null) {
     module.exports = KiRouter;
@@ -56,6 +56,7 @@ limitations under the License.
       this.attachClickListener = __bind(this.attachClickListener, this);
       this.hashbangRouting = __bind(this.hashbangRouting, this);
       this.transparentRouting = __bind(this.transparentRouting, this);
+      this.addPostExecutionListener = __bind(this.addPostExecutionListener, this);
       this.find = __bind(this.find, this);
       this.exec = __bind(this.exec, this);
       this.add = __bind(this.add, this);
@@ -63,6 +64,8 @@ limitations under the License.
     }
 
     KiRoutes.prototype.routes = [];
+
+    KiRoutes.prototype.postExecutionListeners = [];
 
     KiRoutes.prototype.debug = false;
 
@@ -72,20 +75,27 @@ limitations under the License.
       }
     };
 
-    KiRoutes.prototype.add = function(urlPattern, fn) {
+    KiRoutes.prototype.add = function(urlPattern, fn, metadata) {
       return this.routes.push({
         route: new SinatraRouteParser(urlPattern),
         fn: fn,
-        urlPattern: urlPattern
+        urlPattern: urlPattern,
+        metadata: metadata
       });
     };
 
     KiRoutes.prototype.exec = function(path) {
-      var matchedRoute;
-      if (matchedRoute = this.find(path)) {
-        this.log("Found route for", path, " Calling function with params ", matchedRoute.params);
-        matchedRoute.result = matchedRoute.fn(matchedRoute.params);
-        return matchedRoute;
+      var listener, matched, _i, _len, _ref;
+      if (matched = this.find(path)) {
+        this.log("Found route for", path, " Calling function with params ", matched.params);
+        matched.result = matched.fn(matched.params);
+        _ref = this.postExecutionListeners;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          listener = _ref[_i];
+          listener(matched, this.previous);
+        }
+        this.previous = matched;
+        return matched;
       }
     };
 
@@ -99,10 +109,16 @@ limitations under the License.
             params: params,
             route: candidate.matchedRoute,
             fn: candidate.fn,
-            urlPattern: candidate.urlPattern
+            urlPattern: candidate.urlPattern,
+            path: path,
+            metadata: candidate.metadata
           };
         }
       }
+    };
+
+    KiRoutes.prototype.addPostExecutionListener = function(fn) {
+      return this.postExecutionListeners.push(fn);
     };
 
     KiRoutes.prototype.pushStateSupport = history && history.pushState;
@@ -111,7 +127,7 @@ limitations under the License.
 
     KiRoutes.prototype.hashBaseUrl = false;
 
-    KiRoutes.prototype.previousView = false;
+    KiRoutes.prototype.previous = false;
 
     KiRoutes.prototype.disableUrlUpdate = false;
 
@@ -159,7 +175,6 @@ limitations under the License.
               if (_this.exec(href)) {
                 _this.log("New url", href);
                 event.preventDefault();
-                _this.previousView = href;
                 return _this.updateUrl(href);
               }
             }
@@ -225,7 +240,7 @@ limitations under the License.
             var href;
             if (window.location.hash.substring(0, 2) === "#!") {
               href = window.location.hash.substring(2);
-              if (href !== _this.previousView) {
+              if (!_this.previous || href !== _this.previous.path) {
                 _this.log("Rendering onhashchange", href);
                 return _this.renderUrl(href);
               }
