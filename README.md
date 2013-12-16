@@ -114,16 +114,37 @@ for all possible urls. That page should load the router configuration and then r
       erb :repository_page
     end
 
+## Route metadata
+
+It's possible to add metadata information to routes. This metadata is available for postExecutionListener and
+it can be used for for example Google Analytics
+
+   router.add("/repository", function (params) { show_components( ) } );
+   router.add("/repository/component/*", function (params) { show_component( params.splat ) }, {ga: "Component"} );
+
 ## Routing events
 
 It is possible to listen for triggered routes by registering an listener function that is valled each time the route has been triggered.
 
     router.addPostExecutionListener(function(matched, previous) {
-        console.log(previousRoute)
-        console.log(route)
+        if( matched.metadata && matched.metadata.ga ) {
+            addAnalyticsEvent(matched.metadata.ga, previous.metadata.ga);
+        }
     })
 
 Listener callback gets two parameters that are the route information of the currently triggered route and the previous route.
+
+Matched and previous are hashes, that contain following values:
+
+    {
+        path: "/repository/component/abc",
+        params: {"splat": "abc"},
+        metadata: {"ga": "Component"},
+        result: ...,
+        urlPattern: "/repository/component/*/",
+        route: ...,
+        fn: ...
+    }
 
 # Install
 
