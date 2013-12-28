@@ -141,7 +141,10 @@ class KiRoutes
 
   targetHostSame: (aTag) =>
     l = window.location
-    aTag.host == l.host && aTag.protocol == l.protocol && aTag.username == l.username && aTag.password == aTag.password
+    locationUserName = l.username
+    if !locationUserName
+      locationUserName = ""
+    aTag.host == l.host && aTag.protocol == l.protocol && aTag.username == locationUserName && aTag.password == aTag.password
 
   attachLocationChangeListener: =>
     if @pushStateSupport
