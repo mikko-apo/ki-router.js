@@ -159,6 +159,7 @@ Matched and previous are hashes, that contain following values:
 * Javascript: [dist/ki-router.js](https://raw.github.com/mikko-apo/ki-router.js/master/dist/ki-router.js)
 
 # Release History
+* 2013-12-16 1.1.3 Fix for Firefox 26 setting window.location.username to undefined instead of empty string
 * 2013-12-16 1.1.2 Add support for listening route triggering. It's also possible to define metadata for routes
 * 2013-11-20 1.1.1 Added KiRouter.version that is updated automatically for releases
 * 2013-11-20 1.1.0 renderInitialView does not change url format automatically anymore

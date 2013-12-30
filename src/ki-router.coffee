@@ -141,6 +141,7 @@ class KiRoutes
 
   targetHostSame: (aTag) =>
     l = window.location
+    # Firefox 26 sets window.location.username to undefined by default
     locationUserName = l.username
     if !locationUserName
       locationUserName = ""
