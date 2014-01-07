@@ -23,7 +23,7 @@ limitations under the License.
 
   KiRouter = {};
 
-  KiRouter.version = '1.1.3';
+  KiRouter.version = '1.1.4';
 
   if (typeof module !== "undefined" && module !== null) {
     module.exports = KiRouter;
@@ -53,6 +53,7 @@ limitations under the License.
       this.metakeyPressed = __bind(this.metakeyPressed, this);
       this.findATag = __bind(this.findATag, this);
       this.leftMouseButton = __bind(this.leftMouseButton, this);
+      this.blog = __bind(this.blog, this);
       this.attachClickListener = __bind(this.attachClickListener, this);
       this.hashbangRouting = __bind(this.hashbangRouting, this);
       this.transparentRouting = __bind(this.transparentRouting, this);
@@ -70,8 +71,8 @@ limitations under the License.
     KiRoutes.prototype.debug = false;
 
     KiRoutes.prototype.log = function() {
-      if (this.debug) {
-        return console.log.apply(this, arguments);
+      if (this.debug && console && console.log) {
+        return console.log(arguments);
       }
     };
 
@@ -163,11 +164,13 @@ limitations under the License.
           var aTag, href, target;
           target = event.target;
           if (target) {
+            _this.log("Checking if click event should be rendered");
             aTag = _this.findATag(target);
-            if (aTag && _this.leftMouseButton(event) && !_this.metakeyPressed(event) && _this.targetAttributeIsCurrentWindow(aTag) && _this.targetHostSame(aTag)) {
+            if (_this.blog("- A tag", aTag) && _this.blog("- Left mouse button click", _this.leftMouseButton(event)) && _this.blog("- Not meta keys pressed", !_this.metakeyPressed(event)) && _this.blog("- Target attribute is current window", _this.targetAttributeIsCurrentWindow(aTag)) && _this.blog("- Link host same as current window", _this.targetHostSame(aTag))) {
               href = aTag.attributes.href.nodeValue;
-              _this.log("Processing click", href);
+              _this.log("Click event passed all checks, rendering ", href);
               if (!_this.pushStateSupport && _this.hashchangeSupport && _this.hashBaseUrl && _this.hashBaseUrl !== window.location.pathname) {
+                _this.log("Using hashbang change to trigger rendering");
                 event.preventDefault();
                 window.location.href = _this.hashBaseUrl + "#!" + href;
                 return;
@@ -183,6 +186,11 @@ limitations under the License.
       }
     };
 
+    KiRoutes.prototype.blog = function(str, v) {
+      this.log(str + ", result: " + v);
+      return v;
+    };
+
     KiRoutes.prototype.leftMouseButton = function(event) {
       return (event.which != null) && event.which === 1 || event.button === 0;
     };
@@ -194,7 +202,7 @@ limitations under the License.
         }
         target = target.parentElement;
       }
-      return null;
+      return false;
     };
 
     KiRoutes.prototype.metakeyPressed = function(event) {
@@ -220,13 +228,13 @@ limitations under the License.
     };
 
     KiRoutes.prototype.targetHostSame = function(aTag) {
-      var l, locationUserName;
+      var l, targetUserName;
       l = window.location;
-      locationUserName = l.username;
-      if (!locationUserName) {
-        locationUserName = "";
+      targetUserName = aTag.username;
+      if (targetUserName === "") {
+        targetUserName = void 0;
       }
-      return aTag.host === l.host && aTag.protocol === l.protocol && aTag.username === locationUserName && aTag.password === aTag.password;
+      return aTag.host === l.host && aTag.protocol === l.protocol && targetUserName === l.username && aTag.password === aTag.password;
     };
 
     KiRoutes.prototype.attachLocationChangeListener = function() {
@@ -353,7 +361,7 @@ limitations under the License.
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           match = _ref[_i];
           if (paramVerify && !paramVerify(match)) {
-            return null;
+            return false;
           }
           key = this.keys[i];
           i += 1;
