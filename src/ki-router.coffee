@@ -55,8 +55,8 @@ class KiRoutes
   postExecutionListeners: []
   debug: false
   log: =>
-    if @debug
-      console.log.apply(this, arguments)
+    if @debug && console && console.log
+      console.log(arguments)
   add: (urlPattern, fn, metadata) =>
     @routes.push({route: new SinatraRouteParser(urlPattern), fn: fn, urlPattern: urlPattern, metadata: metadata})
   exec: (path) =>
@@ -101,11 +101,17 @@ class KiRoutes
       @addListener document, "click", (event) =>
         target = event.target
         if target
+          @log("Checking if click event should be rendered")
           aTag = @findATag(target)
-          if aTag && @leftMouseButton(event) && !@metakeyPressed(event) && @targetAttributeIsCurrentWindow(aTag) && @targetHostSame(aTag)
+          if @blog("- A tag", aTag) &&
+          @blog("- Left mouse button click", @leftMouseButton(event)) &&
+          @blog("- Not meta keys pressed", !@metakeyPressed(event)) &&
+          @blog("- Target attribute is current window", @targetAttributeIsCurrentWindow(aTag)) &&
+          @blog("- Link host same as current window", @targetHostSame(aTag))
             href = aTag.attributes.href.nodeValue
-            @log("Processing click", href)
+            @log("Click event passed all checks, rendering ", href)
             if !@pushStateSupport && @hashchangeSupport && @hashBaseUrl && @hashBaseUrl != window.location.pathname
+              @log("Using hashbang change to trigger rendering")
               event.preventDefault();
               window.location.href = @hashBaseUrl + "#!" + href
               return
@@ -113,6 +119,10 @@ class KiRoutes
               @log("New url", href)
               event.preventDefault();
               @updateUrl(href)
+
+  blog: (str, v) =>
+    @log(str + ", result: " + v)
+    v
 
   leftMouseButton: (event) =>
     event.which? && event.which == 1 || event.button == 0
@@ -122,7 +132,7 @@ class KiRoutes
       if target.tagName == "A"
         return target
       target = target.parentElement
-    null
+    false
 
   metakeyPressed: (event) =>
     (event.shiftKey || event.ctrlKey || event.altKey || event.metaKey)
@@ -141,11 +151,11 @@ class KiRoutes
 
   targetHostSame: (aTag) =>
     l = window.location
-    # Firefox 26 sets window.location.username to undefined by default
-    locationUserName = l.username
-    if !locationUserName
-      locationUserName = ""
-    aTag.host == l.host && aTag.protocol == l.protocol && aTag.username == locationUserName && aTag.password == aTag.password
+    # Firefox 26 sets aTag.username to "", other browsers use undefined
+    targetUserName = aTag.username
+    if targetUserName == ""
+      targetUserName = undefined
+    aTag.host == l.host && aTag.protocol == l.protocol && targetUserName == l.username && aTag.password == aTag.password
 
   attachLocationChangeListener: =>
     if @pushStateSupport
@@ -229,7 +239,7 @@ class SinatraRouteParser
       ret = {}
       for match in matches.slice(1)
         if paramVerify && !paramVerify(match)
-          return null # parameter did not pass verifier -> abort
+          return false # parameter did not pass verifier -> abort
         key = @keys[i]
         i+=1
         #        console.log("Found item", match, key)
