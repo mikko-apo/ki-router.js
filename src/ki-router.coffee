@@ -56,7 +56,10 @@ class KiRoutes
   debug: false
   log: =>
     if @debug && console && console.log
-      console.log(arguments)
+      if JSON.stringify
+        console.log("ki-router: " + JSON.stringify(arguments))
+      else
+        console.log(arguments)
   add: (urlPattern, fn, metadata) =>
     @routes.push({route: new SinatraRouteParser(urlPattern), fn: fn, urlPattern: urlPattern, metadata: metadata})
   exec: (path) =>
