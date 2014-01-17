@@ -154,11 +154,26 @@ class KiRoutes
 
   targetHostSame: (aTag) =>
     l = window.location
+    targetUserName = @fixUsername(aTag.username)
+    targetPort = @fixTargetPort(aTag.port, aTag.protocol)
+    aTag.hostname == l.hostname && targetPort == l.port && aTag.protocol == l.protocol && targetUserName == l.username && aTag.password == aTag.password
+
+  fixUsername: (username) =>
     # Firefox 26 sets aTag.username to "", other browsers use undefined
-    targetUserName = aTag.username
-    if targetUserName == ""
-      targetUserName = undefined
-    aTag.hostname == l.hostname && aTag.port == l.port && aTag.protocol == l.protocol && targetUserName == l.username && aTag.password == aTag.password
+    if username == ""
+      undefined
+    else
+      username
+
+  # IE9 sets port to "443" even if protocol is https
+  fixTargetPort: (port, protocol) =>
+    protocolPorts =
+      "http": "80"
+      "https": "443"
+    if port != "" && port == protocolPorts[protocol]
+      ""
+    else
+      port
 
   attachLocationChangeListener: =>
     if @pushStateSupport
