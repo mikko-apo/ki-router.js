@@ -23,7 +23,7 @@ limitations under the License.
 
   KiRouter = {};
 
-  KiRouter.version = '1.1.6';
+  KiRouter.version = '1.1.7';
 
   if (typeof module !== "undefined" && module !== null) {
     module.exports = KiRouter;
@@ -48,6 +48,8 @@ limitations under the License.
       this.renderUrl = __bind(this.renderUrl, this);
       this.renderInitialView = __bind(this.renderInitialView, this);
       this.attachLocationChangeListener = __bind(this.attachLocationChangeListener, this);
+      this.fixTargetPort = __bind(this.fixTargetPort, this);
+      this.fixUsername = __bind(this.fixUsername, this);
       this.targetHostSame = __bind(this.targetHostSame, this);
       this.targetAttributeIsCurrentWindow = __bind(this.targetAttributeIsCurrentWindow, this);
       this.metakeyPressed = __bind(this.metakeyPressed, this);
@@ -232,13 +234,32 @@ limitations under the License.
     };
 
     KiRoutes.prototype.targetHostSame = function(aTag) {
-      var l, targetUserName;
+      var l, targetPort, targetUserName;
       l = window.location;
-      targetUserName = aTag.username;
-      if (targetUserName === "") {
-        targetUserName = void 0;
+      targetUserName = this.fixUsername(aTag.username);
+      targetPort = this.fixTargetPort(aTag.port, aTag.protocol);
+      return aTag.hostname === l.hostname && targetPort === l.port && aTag.protocol === l.protocol && targetUserName === l.username && aTag.password === aTag.password;
+    };
+
+    KiRoutes.prototype.fixUsername = function(username) {
+      if (username === "") {
+        return void 0;
+      } else {
+        return username;
       }
-      return aTag.hostname === l.hostname && aTag.port === l.port && aTag.protocol === l.protocol && targetUserName === l.username && aTag.password === aTag.password;
+    };
+
+    KiRoutes.prototype.fixTargetPort = function(port, protocol) {
+      var protocolPorts;
+      protocolPorts = {
+        "http": "80",
+        "https": "443"
+      };
+      if (port !== "" && port === protocolPorts[protocol]) {
+        return "";
+      } else {
+        return port;
+      }
     };
 
     KiRoutes.prototype.attachLocationChangeListener = function() {
