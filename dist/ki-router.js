@@ -23,7 +23,7 @@ limitations under the License.
 
   KiRouter = {};
 
-  KiRouter.version = '1.1.7';
+  KiRouter.version = '1.1.8';
 
   if (typeof module !== "undefined" && module !== null) {
     module.exports = KiRouter;
@@ -252,8 +252,8 @@ limitations under the License.
     KiRoutes.prototype.fixTargetPort = function(port, protocol) {
       var protocolPorts;
       protocolPorts = {
-        "http": "80",
-        "https": "443"
+        "http:": "80",
+        "https:": "443"
       };
       if (port !== "" && port === protocolPorts[protocol]) {
         return "";
