@@ -23,7 +23,7 @@ limitations under the License.
 
   KiRouter = {};
 
-  KiRouter.version = '1.1.4';
+  KiRouter.version = '1.1.5';
 
   if (typeof module !== "undefined" && module !== null) {
     module.exports = KiRouter;
@@ -72,7 +72,11 @@ limitations under the License.
 
     KiRoutes.prototype.log = function() {
       if (this.debug && console && console.log) {
-        return console.log(arguments);
+        if (JSON.stringify) {
+          return console.log("ki-router: " + JSON.stringify(arguments));
+        } else {
+          return console.log(arguments);
+        }
       }
     };
 
