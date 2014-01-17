@@ -23,7 +23,7 @@ limitations under the License.
 
   KiRouter = {};
 
-  KiRouter.version = '1.1.5';
+  KiRouter.version = '1.1.6';
 
   if (typeof module !== "undefined" && module !== null) {
     module.exports = KiRouter;
@@ -238,7 +238,7 @@ limitations under the License.
       if (targetUserName === "") {
         targetUserName = void 0;
       }
-      return aTag.host === l.host && aTag.protocol === l.protocol && targetUserName === l.username && aTag.password === aTag.password;
+      return aTag.hostname === l.hostname && aTag.port === l.port && aTag.protocol === l.protocol && targetUserName === l.username && aTag.password === aTag.password;
     };
 
     KiRoutes.prototype.attachLocationChangeListener = function() {
