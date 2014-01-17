@@ -158,7 +158,7 @@ class KiRoutes
     targetUserName = aTag.username
     if targetUserName == ""
       targetUserName = undefined
-    aTag.host == l.host && aTag.protocol == l.protocol && targetUserName == l.username && aTag.password == aTag.password
+    aTag.hostname == l.hostname && aTag.port == l.port && aTag.protocol == l.protocol && targetUserName == l.username && aTag.password == aTag.password
 
   attachLocationChangeListener: =>
     if @pushStateSupport

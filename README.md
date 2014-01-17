@@ -159,6 +159,7 @@ Matched and previous are hashes, that contain following values:
 * Javascript: [dist/ki-router.js](https://raw.github.com/mikko-apo/ki-router.js/master/dist/ki-router.js)
 
 # Release History
+* 2014-01-17 1.1.6 Fixed targetHostSame check to work with IE9 and https links
 * 2014-01-17 1.1.5 Debug log uses JSON.stringify to support browsers
 * 2014-01-07 1.1.4 Firefox 26 actually sets target.username to empty string
 * 2013-12-30 1.1.3 Fix for Firefox 26 setting window.location.username to undefined instead of empty string
