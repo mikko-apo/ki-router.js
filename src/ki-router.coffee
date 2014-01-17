@@ -168,8 +168,8 @@ class KiRoutes
   # IE9 sets port to "443" even if protocol is https
   fixTargetPort: (port, protocol) =>
     protocolPorts =
-      "http": "80"
-      "https": "443"
+      "http:" : "80"
+      "https:" : "443"
     if port != "" && port == protocolPorts[protocol]
       ""
     else
