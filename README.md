@@ -6,10 +6,11 @@ parameters used by the view. Javascript single page apps can benefit from the sa
 # Why should you use it?
 
 ki-router.js makes it relative easy to implement a modern single page app that supports clean REST-like bookmarkable
-urls. It supports two kinds of single page app modes:
+urls. It supports three kinds of single page app modes:
 
-* transparent
+* historyApi
 * hashbang
+* transparent
 
 To use it all you need to do to is:
 
@@ -32,7 +33,29 @@ Additional technical features include:
 * Simple integration with other javascript frameworks. Attaches listeners to document level, does not interfere with events handled by application's javascript
 * No dependencies on other javascript libraries
 
-# Two modes of operation
+# Three modes of operation
+
+## HistoryApi mode
+
+This is the best mode if you need search engine support and nice urls. In HistoryApi mode ki-router intercepts link clicks
+only if the browser supports the History API. With older browsers (IE9/8) each link click forces browser to get a new page
+and ki-router renders the correct view. ki-router will not fall back to hashbang links.
+
+For search engine support, each page rendered by the server needs to include the relevant content for that specific page.
+
+Additional things to consider:
+
+* Backend server needs be configured so that it returns the correct content for all possible links (search engine support)
+* Hashbangs are not used because search engine support would need to be implemented for both regular links and _escaped_fragments_
+* Rendering on old browsers gets a little slower because the content might be rendered twice
+
+## Hashbang mode
+
+Hashbang mode is useful if you either prefer hashbang urls or want to serve your application from single url
+
+Additional things to consider:
+* Links in HTML document can be in either plain format or prefixed with "#!". Both of these will work: "/path/123" and "#!/path/123"
+* There is no fallback for browsers without "onhashchange" support or browsers without javascript support
 
 ## Transparent mode
 
@@ -45,16 +68,9 @@ Additional things to consider:
 
 * history.pushState and hashbang (#!) support. ki-route.js is able to convert urls between those two formats if urls are copied between browsers.
 * Gracefully degrading web app (pushState -> hashBang -> javascript but no pushState/hashBang -> no javascript)
+* Search engine support is tricky: Servers needs to return correct content for the url and support _escaped_fragments_ urls also
 * If the browser doesn't support javascript all links will lead back to server and server needs to render the correct page
 * Backend server needs to have a wildcard url that returns the same page for all possible links
-
-## Hashbang mode
-
-Hashbang mode is useful if you either prefer hashbang urls or want to serve your application from single url
-
-Additional things to consider:
-* Links in HTML document can be in either plain format or prefixed with "#!". Both of these will work: "/path/123" and "#!/path/123"
-* There is no fallback for browsers without "onhashchange" support or browsers without javascript support
 
 # How to use it?
 
@@ -119,6 +135,10 @@ for all possible urls. That page should load the router configuration and then r
 ### Hashbang routing
 
     router.hashbangRouting()
+
+### HistoryApi routing
+
+    router.historyApiRouting()
 
 ## Route metadata
 

@@ -19,6 +19,8 @@ limitations under the License.
 "use strict"
 
 # Missing features:
+# - three modes: transparentRouting, hashbangRouting and historyApiRouting
+# - four modes: transparentRouting, hashbangRouting, hashRouting and historyApiRouting
 # - $("a").click does not register but $("a")[0].click does
 # - more complete sinatra path parsing, JavascriptRouteParser
 # - test suite
@@ -97,6 +99,9 @@ class KiRoutes
     @pushStateSupport = false
     if !@hashchangeSupport
       throw new Error("No hashchange support!")
+    @transparentRouting()
+  historyApiRouting: () =>
+    @hashchangeSupport = false
     @transparentRouting()
 
   attachClickListener: =>
