@@ -24,17 +24,11 @@
 <script type="text/javascript" src="/dist/ki-router.js"></script>
 
 <script>
-    window.onpopstate = function(){console.log("pop!");};
-</script>
-
-<script>
     function set(text) {
         return document.getElementById('txt').innerHTML=text;
     }
     var router = KiRouter.router();
     router.hashBaseUrl="/index.html";
-    console.log("hashchange");
-    console.log(router.hashchangeSupport);
     router.add("/index.html", function(params) {return set(this.path)});
     router.add("/foo", function(params) {return set(this.path)});
     router.debug = true;
