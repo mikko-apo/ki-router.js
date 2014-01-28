@@ -1,3 +1,5 @@
+spec/router_test.js
+
 *.gem
 *.rbc
 .bundle

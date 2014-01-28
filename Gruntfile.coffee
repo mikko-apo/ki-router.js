@@ -9,7 +9,8 @@ module.exports = (grunt) ->
         expand: true
         files: [
           'dist/ki-router.js': 'dist/ki-router.coffee'
-          'dist/ki-router.min.js': 'dist/ki-router.noAssert.coffee'
+          'dist/ki-router.min.js': 'dist/ki-router.noAssert.coffee',
+          'spec/router_test.js': 'spec/router_test.coffee'
         ]
 
     uglify:
@@ -23,12 +24,33 @@ module.exports = (grunt) ->
         files:[
           'dist/ki-router.coffee': 'src/ki-router.coffee'
         ]
-        
-    
+
+    connect:
+      http80:
+        options:
+          port: 80
+          base: '.'
+      https443:
+        options:
+          protocol: 'https'
+          port: 443
+          base: '.'
+      http8080:
+        options:
+          port: 8080
+          base: '.'
+          keepalive: true
+      https8443:
+        options:
+          protocol: 'https'
+          port: 8443
+          base: '.'
+
   grunt.loadNpmTasks 'grunt-contrib-coffee'
   grunt.loadNpmTasks 'grunt-contrib-clean'
   grunt.loadNpmTasks 'grunt-contrib-copy'
   grunt.loadNpmTasks 'grunt-contrib-uglify'
+  grunt.loadNpmTasks 'grunt-contrib-connect'
 
   grunt.registerTask 'build', ['clean:dist', 'copy', 'removeAsserts', 'coffee', 'uglify', 'clean:coffee']
   grunt.registerTask 'default', ['build']
@@ -37,4 +59,4 @@ module.exports = (grunt) ->
     fs = require 'fs'
     file = fs.readFileSync('dist/ki-router.coffee', 'utf8')
     replacedData = file.replace(/assert.*/g, '')
-    fs.writeFileSync('dist/Walter.noAssert.coffee', replacedData);
+    fs.writeFileSync('dist/ki-router.noAssert.coffee', replacedData);
