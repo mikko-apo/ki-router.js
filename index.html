@@ -7,16 +7,38 @@
 
 <h3>Links</h3>
 <a href="/">root /</a>
-<a href="index.html">index.html</a>
+<a href="/index.html">index.html</a>
+<a href="/foo">foo</a>
 
 <h3>Links with target</h3>
-<a href="index.html" target="_blank">_blank</a>
-<a href="index.html" target="_parent">_parent</a>
-<a href="index.html" target="_self">_self</a>
-<a href="index.html" target="_top">_top</a>
-<a href="index.html" target="aa">aa</a>
-<a href="index.html" target="bb">bb</a>
+<a href="/index.html" target="_blank">_blank</a>
+<a href="/index.html" target="_parent">_parent</a>
+<a href="/index.html" target="_self">_self</a>
+<a href="/index.html" target="_top">_top</a>
+<a href="/index.html" target="aa">aa</a>
+<a href="/index.html" target="bb">bb</a>
+
+<p id="pageSame" onclick="document.getElementById('pageSame').innerHTML='Ok!'">Click to check we're on same page</p>
+<p id="txt">No content!</p>
 
 <script type="text/javascript" src="/dist/ki-router.js"></script>
+
+<script>
+    window.onpopstate = function(){console.log("pop!");};
+</script>
+
+<script>
+    function set(text) {
+        return document.getElementById('txt').innerHTML=text;
+    }
+    var router = KiRouter.router();
+    router.hashBaseUrl="/index.html";
+    console.log("hashchange");
+    console.log(router.hashchangeSupport);
+    router.add("/index.html", function(params) {return set(this.path)});
+    router.add("/foo", function(params) {return set(this.path)});
+    router.debug = true;
+    router.transparentRouting();
+</script>
 </body>
 </html>

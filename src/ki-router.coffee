@@ -107,7 +107,8 @@ class KiRoutes
   attachClickListener: =>
     if @pushStateSupport || @hashchangeSupport
       @addListener document, "click", (event) =>
-        target = event.target
+        event = event || window.event
+        target = event.target || event.srcElement
         if target
           @log("Checking if click event should be rendered")
           aTag = @findATag(target)
@@ -117,16 +118,24 @@ class KiRoutes
           @blog("- Target attribute is current window", @targetAttributeIsCurrentWindow(aTag)) &&
           @blog("- Link host same as current window", @targetHostSame(aTag))
             href = aTag.attributes.href.nodeValue
-            @log("Click event passed all checks, rendering ", href)
+            @log("Click event passed all checks")
             if !@pushStateSupport && @hashchangeSupport && @hashBaseUrl && @hashBaseUrl != window.location.pathname
-              @log("Using hashbang change to trigger rendering")
-              event.preventDefault();
+              @log("Using hashbang change to trigger rendering for", href)
+              @disableEventDefault(event)
               window.location.href = @hashBaseUrl + "#!" + href
               return
             if @exec(href)
-              @log("New url", href)
-              event.preventDefault();
+              @log("Rendered", href)
+              @disableEventDefault(event)
               @updateUrl(href)
+            else
+              @log("Letting browser render url because no matching route", href)
+
+  disableEventDefault: (ev) =>
+    if ev.preventDefault
+      ev.preventDefault()
+    else
+      ev.returnValue = false
 
   blog: (str, v) =>
     @log(str + ", result: " + v)
@@ -239,18 +248,19 @@ class SinatraRouteParser
   constructor: (route) ->
     @keys = []
     route = route.substring(1)
-    segments = route.split("/").map (segment) =>
+    segments = []
+    routeItems = route.split("/")
+    for segment in routeItems
       match = segment.match(/((:\w+)|\*)/)
       if match
         firstMatch = match[0]
         if firstMatch == "*"
           @keys.push "splat"
-          "(.*)"
+          segment = "(.*)"
         else
           @keys.push firstMatch.substring(1)
-          "([^\/?#]+)"
-      else
-        segment
+          segment = "([^\/?#]+)"
+      segments.push segment
     pattern = "^/" + segments.join("/") + "$"
     #    console.log("Pattern", pattern)
     @pattern = new RegExp(pattern)
