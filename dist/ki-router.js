@@ -23,7 +23,7 @@ limitations under the License.
 
   KiRouter = {};
 
-  KiRouter.version = '1.1.8';
+  KiRouter.version = '1.1.9';
 
   if (typeof module !== "undefined" && module !== null) {
     module.exports = KiRouter;
@@ -56,7 +56,9 @@ limitations under the License.
       this.findATag = __bind(this.findATag, this);
       this.leftMouseButton = __bind(this.leftMouseButton, this);
       this.blog = __bind(this.blog, this);
+      this.disableEventDefault = __bind(this.disableEventDefault, this);
       this.attachClickListener = __bind(this.attachClickListener, this);
+      this.historyApiRouting = __bind(this.historyApiRouting, this);
       this.hashbangRouting = __bind(this.hashbangRouting, this);
       this.transparentRouting = __bind(this.transparentRouting, this);
       this.addPostExecutionListener = __bind(this.addPostExecutionListener, this);
@@ -163,32 +165,48 @@ limitations under the License.
       return this.transparentRouting();
     };
 
+    KiRoutes.prototype.historyApiRouting = function() {
+      this.hashchangeSupport = false;
+      return this.transparentRouting();
+    };
+
     KiRoutes.prototype.attachClickListener = function() {
       var _this = this;
       if (this.pushStateSupport || this.hashchangeSupport) {
         return this.addListener(document, "click", function(event) {
           var aTag, href, target;
-          target = event.target;
+          event = event || window.event;
+          target = event.target || event.srcElement;
           if (target) {
             _this.log("Checking if click event should be rendered");
             aTag = _this.findATag(target);
             if (_this.blog("- A tag", aTag) && _this.blog("- Left mouse button click", _this.leftMouseButton(event)) && _this.blog("- Not meta keys pressed", !_this.metakeyPressed(event)) && _this.blog("- Target attribute is current window", _this.targetAttributeIsCurrentWindow(aTag)) && _this.blog("- Link host same as current window", _this.targetHostSame(aTag))) {
               href = aTag.attributes.href.nodeValue;
-              _this.log("Click event passed all checks, rendering ", href);
+              _this.log("Click event passed all checks");
               if (!_this.pushStateSupport && _this.hashchangeSupport && _this.hashBaseUrl && _this.hashBaseUrl !== window.location.pathname) {
-                _this.log("Using hashbang change to trigger rendering");
-                event.preventDefault();
+                _this.log("Using hashbang change to trigger rendering for", href);
+                _this.disableEventDefault(event);
                 window.location.href = _this.hashBaseUrl + "#!" + href;
                 return;
               }
               if (_this.exec(href)) {
-                _this.log("New url", href);
-                event.preventDefault();
+                _this.log("Rendered", href);
+                _this.disableEventDefault(event);
                 return _this.updateUrl(href);
+              } else {
+                return _this.log("Letting browser render url because no matching route", href);
               }
             }
           }
         });
+      }
+    };
+
+    KiRoutes.prototype.disableEventDefault = function(ev) {
+      if (ev.preventDefault) {
+        return ev.preventDefault();
+      } else {
+        return ev.returnValue = false;
       }
     };
 
@@ -352,26 +370,26 @@ limitations under the License.
   SinatraRouteParser = (function() {
     function SinatraRouteParser(route) {
       this.parse = __bind(this.parse, this);
-      var pattern, segments,
-        _this = this;
+      var firstMatch, match, pattern, routeItems, segment, segments, _i, _len;
       this.keys = [];
       route = route.substring(1);
-      segments = route.split("/").map(function(segment) {
-        var firstMatch, match;
+      segments = [];
+      routeItems = route.split("/");
+      for (_i = 0, _len = routeItems.length; _i < _len; _i++) {
+        segment = routeItems[_i];
         match = segment.match(/((:\w+)|\*)/);
         if (match) {
           firstMatch = match[0];
           if (firstMatch === "*") {
-            _this.keys.push("splat");
-            return "(.*)";
+            this.keys.push("splat");
+            segment = "(.*)";
           } else {
-            _this.keys.push(firstMatch.substring(1));
-            return "([^\/?#]+)";
+            this.keys.push(firstMatch.substring(1));
+            segment = "([^\/?#]+)";
           }
-        } else {
-          return segment;
         }
-      });
+        segments.push(segment);
+      }
       pattern = "^/" + segments.join("/") + "$";
       this.pattern = new RegExp(pattern);
     }
