@@ -25,7 +25,7 @@ In return you get:
 * Url parameter parsing
 * Centralized and clear control structure for the application
 * Cleaner javascript, there is no more need to bind view change listeners in javascript
-* Browser support: Firefox, Safari, Chrome, IE10/9/8
+* Browser support: Firefox, Safari, Chrome, IE10/9/8. Older browsers are also supported if the backend server is able to render the page fully.
 
 Additional technical features include:
 
@@ -180,6 +180,7 @@ Matched and previous are hashes, that contain following values:
 * Javascript: [dist/ki-router.js](https://raw.github.com/mikko-apo/ki-router.js/master/dist/ki-router.js)
 
 # Release History
+* 2014-01-28 x.x.x IE6 support
 * 2014-01-28 1.1.9 IE8 support and historyApiRouting
 * 2014-01-17 1.1.8 targetHostSame fix protocols needed a ":"
 * 2014-01-17 1.1.7 Fixed targetHostSame to handle that IE9 sets target port to "443"

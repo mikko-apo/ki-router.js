@@ -57,7 +57,7 @@ class KiRoutes
   postExecutionListeners: []
   debug: false
   log: =>
-    if @debug && console && console.log
+    if @debug && window.console && console && console.log
       if JSON.stringify
         console.log("ki-router: " + JSON.stringify(arguments))
       else
