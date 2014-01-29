@@ -19,20 +19,68 @@
 <a href="/index.html" target="bb">bb</a>
 
 <p id="pageSame" onclick="document.getElementById('pageSame').innerHTML='Ok!'">Click to check we're on same page</p>
+
 <p id="txt">No content!</p>
+
+<h3>Browser info</h3>
+<table>
+    <tr>
+        <th>Event</th>
+        <th>Support</th>
+        <th>Value</th>
+        <th>Count</th>
+    </tr>
+    <tr>
+        <td>onpopstate</td>
+        <td id="onpopstatetxt"></td>
+        <td id="onpopstatevaluetxt"></td>
+        <td id="onpopstatecount"></td>
+    </tr>
+    <tr>
+        <td>onhashchange</td>
+        <td id="onhashchangetxt"></td>
+        <td id="onhashchangevaluetxt"></td>
+        <td id="onhashchangecount"></td>
+    </tr>
+</table>
 
 <script type="text/javascript" src="/dist/ki-router.js"></script>
 
 <script>
-    function set(text) {
-        return document.getElementById('txt').innerHTML=text;
+    function setText(id, text) {
+        return document.getElementById(id).innerHTML = text;
     }
+    function set(text) {
+        return setText('txt', text);
+    }
+    setText("onhashchangetxt", ("onhashchange" in window) ? "Yes :)" : "No");
+    setText("onpopstatetxt", ("onpopstate" in window) ? "Yes :)" : "No");
+
     var router = KiRouter.router();
-    router.hashBaseUrl="/index.html";
-    router.add("/index.html", function(params) {return set(this.path)});
-    router.add("/foo", function(params) {return set(this.path)});
+
+    var hashchangecount = 0;
+    var popstatecount = 0;
+    router.addListener(window, "popstate", function (e) {
+        setText('onpopstatevaluetxt', window.location.pathname);
+        popstatecount += 1;
+        setText('onpopstatecount', popstatecount);
+    });
+    router.addListener(window, "hashchange", function (e) {
+        setText('onhashchangevaluetxt', window.location.hash);
+        hashchangecount += 1;
+        setText('onhashchangevaluecount', hashchangecount);
+    });
+
+    router.hashBaseUrl = "/index.html";
+    router.add("/index.html", function (params) {
+        return set(this.path)
+    });
+    router.add("/foo", function (params) {
+        return set(this.path)
+    });
     router.debug = true;
     router.transparentRouting();
+
 </script>
 </body>
 </html>

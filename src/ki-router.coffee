@@ -18,6 +18,9 @@ limitations under the License.
 
 "use strict"
 
+# Known bugs:
+# - index.html, commas and other regexp special chars should be escaped
+# - chrome fires one onpopstate when page has loaded, firefox doesn't
 # Missing features:
 # - three modes: transparentRouting, hashbangRouting and historyApiRouting
 # - four modes: transparentRouting, hashbangRouting, hashRouting and historyApiRouting
