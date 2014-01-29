@@ -19,7 +19,6 @@ limitations under the License.
 "use strict"
 
 # Known bugs:
-# - index.html, commas and other regexp special chars should be escaped
 # - chrome fires one onpopstate when page has loaded, firefox doesn't
 # Missing features:
 # - three modes: transparentRouting, hashbangRouting and historyApiRouting
@@ -29,6 +28,7 @@ limitations under the License.
 # - test suite
 # - documentation
 # Possible features
+# - regexp special chars should be escaped
 # - clarify when fallbackRoute is used or if it is needed
 # - postExecutionListener gets access to exception during exec
 # - executed function gets access to full matched information
@@ -263,6 +263,8 @@ class SinatraRouteParser
         else
           @keys.push firstMatch.substring(1)
           segment = "([^\/?#]+)"
+      else
+        segment = segment.replace(".","\\.")
       segments.push segment
     pattern = "^/" + segments.join("/") + "$"
     #    console.log("Pattern", pattern)

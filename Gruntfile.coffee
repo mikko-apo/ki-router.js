@@ -1,9 +1,16 @@
+
+
 module.exports = (grunt) ->
   grunt.initConfig
     clean:
       dist: ['dist/']
       coffee: ['dist/*.coffee']
-    
+
+    watch:
+      scripts:
+        files: ['**/*.coffee', '**/*.html']
+        tasks: ['build']
+
     coffee:
       compile:
         expand: true
@@ -39,7 +46,6 @@ module.exports = (grunt) ->
         options:
           port: 8080
           base: '.'
-          keepalive: true
       https8443:
         options:
           protocol: 'https'
@@ -51,6 +57,7 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-contrib-copy'
   grunt.loadNpmTasks 'grunt-contrib-uglify'
   grunt.loadNpmTasks 'grunt-contrib-connect'
+  grunt.loadNpmTasks('grunt-contrib-watch')
 
   grunt.registerTask 'build', ['clean:dist', 'copy', 'removeAsserts', 'coffee', 'uglify', 'clean:coffee']
   grunt.registerTask 'default', ['build']

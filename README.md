@@ -181,6 +181,20 @@ Matched and previous are hashes, that contain following values:
 * Coffeescript (original source): [src/ki-router.coffee](https://raw.github.com/mikko-apo/ki-router.js/master/src/ki-router.coffee)
 * Javascript: [dist/ki-router.js](https://raw.github.com/mikko-apo/ki-router.js/master/dist/ki-router.js)
 
+# Development
+
+To run automated tests run following:
+
+    npm install
+    bower install
+    grunt connect:http8080 build watch
+
+Connect your browser to [http://localhost:8080/spec/test.html](http://localhost:8080/spec/test.html) to run tests.
+
+You can also connect to ports 80, 443, 8080 and 8443 with
+
+    grunt connect build watch
+
 # Release History
 * 2014-01-28 x.x.x IE6 support
 * 2014-01-28 1.1.9 IE8 support and historyApiRouting
