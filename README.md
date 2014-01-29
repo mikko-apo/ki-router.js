@@ -26,6 +26,8 @@ In return you get:
 * Centralized and clear control structure for the application
 * Cleaner javascript, there is no more need to bind view change listeners in javascript
 * Browser support: Firefox, Safari, Chrome, IE10/9/8. Older browsers are also supported if the backend server is able to render the page fully.
+* Gracefully degrading web app with different alternative strategies (pushState -> hashBang -> javascript but no pushState/hashBang -> no javascript)
+
 
 Additional technical features include:
 
