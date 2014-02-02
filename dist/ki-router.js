@@ -23,7 +23,7 @@ limitations under the License.
 
   KiRouter = {};
 
-  KiRouter.version = '1.1.9';
+  KiRouter.version = '1.1.10';
 
   if (typeof module !== "undefined" && module !== null) {
     module.exports = KiRouter;
@@ -61,6 +61,7 @@ limitations under the License.
       this.historyApiRouting = __bind(this.historyApiRouting, this);
       this.hashbangRouting = __bind(this.hashbangRouting, this);
       this.transparentRouting = __bind(this.transparentRouting, this);
+      this.addExceptionListener = __bind(this.addExceptionListener, this);
       this.addPostExecutionListener = __bind(this.addPostExecutionListener, this);
       this.find = __bind(this.find, this);
       this.exec = __bind(this.exec, this);
@@ -72,10 +73,12 @@ limitations under the License.
 
     KiRoutes.prototype.postExecutionListeners = [];
 
+    KiRoutes.prototype.exceptionListeners = [];
+
     KiRoutes.prototype.debug = false;
 
     KiRoutes.prototype.log = function() {
-      if (this.debug && console && console.log) {
+      if (this.debug && window.console && console && console.log) {
         if (JSON.stringify) {
           return console.log("ki-router: " + JSON.stringify(arguments));
         } else {
@@ -94,14 +97,25 @@ limitations under the License.
     };
 
     KiRoutes.prototype.exec = function(path) {
-      var listener, matched, _i, _len, _ref;
+      var error, exceptionListener, listener, matched, _i, _j, _len, _len1, _ref, _ref1;
       if (matched = this.find(path)) {
         this.log("Found route for", path, " Calling function with params ", matched.params);
-        matched.result = matched.fn(matched.params);
-        _ref = this.postExecutionListeners;
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          listener = _ref[_i];
-          listener(matched, this.previous);
+        try {
+          matched.result = matched.fn(matched.params);
+          _ref = this.postExecutionListeners;
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            listener = _ref[_i];
+            listener(matched, this.previous);
+          }
+        } catch (_error) {
+          error = _error;
+          matched.error = error;
+          _ref1 = this.exceptionListeners;
+          for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+            exceptionListener = _ref1[_j];
+            exceptionListener(matched, this.previous);
+          }
+          throw error;
         }
         this.previous = matched;
         return matched;
@@ -128,6 +142,10 @@ limitations under the License.
 
     KiRoutes.prototype.addPostExecutionListener = function(fn) {
       return this.postExecutionListeners.push(fn);
+    };
+
+    KiRoutes.prototype.addExceptionListener = function(fn) {
+      return this.exceptionListeners.push(fn);
     };
 
     KiRoutes.prototype.pushStateSupport = history && history.pushState;
@@ -387,6 +405,8 @@ limitations under the License.
             this.keys.push(firstMatch.substring(1));
             segment = "([^\/?#]+)";
           }
+        } else {
+          segment = segment.replace(".", "\\.");
         }
         segments.push(segment);
       }
