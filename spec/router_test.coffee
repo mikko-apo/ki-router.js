@@ -36,3 +36,21 @@ describe "KiRouter", ->
       eq(router.exec("/index.html").result, "ok")
     it "and escape regex dot", ->
       eq(router.exec("/indexahtml"), undefined)
+  describe "should provide listeners", ->
+    router = KiRouter.router()
+    router.disableUrlUpdate=true
+    it "for execution results", ->
+      results = []
+      router.add("/foo", (params) -> "cool!")
+      router.addPostExecutionListener( (matched, previous) -> results.push(matched.result) )
+      router.exec("/foo")
+      eq(["cool!"], results)
+    it "for listening to exceptions", ->
+      errors = []
+      router.add("/exception", (params) -> throw new Error("uups!"))
+      router.addExceptionListener( (matched, previous)-> errors.push(matched.error.message) )
+      try
+        router.exec("/exception")
+        throw new Error("should have raised an exception!")
+      catch
+      eq(["uups!"], errors)

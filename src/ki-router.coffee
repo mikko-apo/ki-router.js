@@ -58,6 +58,7 @@ KiRouter.router = -> new KiRoutes()
 class KiRoutes
   routes: []
   postExecutionListeners: []
+  exceptionListeners: []
   debug: false
   log: =>
     if @debug && window.console && console && console.log
@@ -70,9 +71,15 @@ class KiRoutes
   exec: (path) =>
     if matched = @find(path)
       @log("Found route for", path, " Calling function with params ", matched.params)
-      matched.result = matched.fn(matched.params)
-      for listener in @postExecutionListeners
-        listener(matched, @previous)
+      try
+        matched.result = matched.fn(matched.params)
+        for listener in @postExecutionListeners
+          listener(matched, @previous)
+      catch error
+        matched.error = error
+        for exceptionListener in @exceptionListeners
+          exceptionListener(matched, @previous)
+        throw error
       @previous = matched
       return matched
   find: (path) =>
@@ -81,6 +88,8 @@ class KiRoutes
         return {params: params, route: candidate.matchedRoute, fn: candidate.fn, urlPattern: candidate.urlPattern, path: path, metadata: candidate.metadata}
   addPostExecutionListener: (fn) =>
     @postExecutionListeners.push(fn)
+  addExceptionListener: (fn) =>
+    @exceptionListeners.push(fn)
 
   pushStateSupport: history && history.pushState
   hashchangeSupport: "onhashchange" of window

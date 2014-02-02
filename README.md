@@ -153,6 +153,8 @@ it can be used for for example Google Analytics
 
 ## Routing events
 
+### Post execution
+
 It is possible to listen for triggered routes by registering an listener function that is valled each time the route has been triggered.
 
     router.addPostExecutionListener(function(matched, previous) {
@@ -175,6 +177,15 @@ Matched and previous are hashes, that contain following values:
         fn: ...
     }
 
+### Exceptions
+
+Ki-router provides a listener mechanism to listen to exceptions. The exception is available from matched.error:
+
+    router.addExceptionListener(function(matched, previous) {
+        console.log(matched.error);
+    })
+
+
 # Install
 
 * Bower: bower install --save ki-router
@@ -196,7 +207,7 @@ You can also connect to ports 80, 443, 8080 and 8443 with
     grunt connect build watch
 
 # Release History
-* 2014-01-28 x.x.x IE6 support
+* 2014-02-02 1.1.10 IE6 support, addExceptionListener
 * 2014-01-28 1.1.9 IE8 support and historyApiRouting
 * 2014-01-17 1.1.8 targetHostSame fix protocols needed a ":"
 * 2014-01-17 1.1.7 Fixed targetHostSame to handle that IE9 sets target port to "443"
