@@ -15,18 +15,18 @@ window.Zhain.prototype.trie = trie = (done, attempts, fn) ->
     if attempts == 0
       done(error)
     callback = -> window.Zhain.prototype.trie(done, attempts-1, fn)
-    setTimeout callback, 100
+    setTimeout callback, 10
 
 window.Zhain.prototype.window_open = (url, checker) ->
   return @do (done) ->
     w = @w = window.open(url, "test_window")
-    window.Zhain.prototype.trie(done, 15, -> checker(w))
+    window.Zhain.prototype.trie(done, 100, -> checker(w))
 
 window.Zhain.prototype.click = (selector, checker) ->
   return @do (done) ->
     w = @w
     s(w, selector).click()
-    window.Zhain.prototype.trie(done, 15, -> checker(w))
+    window.Zhain.prototype.trie(done, 100, -> checker(w))
 
 s = (w, selector) ->
   w.document.querySelector(selector)
@@ -86,11 +86,11 @@ describe "KiRouter", ->
       eq(["uups!"], errors)
   describe "should handle url rendering", ->
     it "should render correct view", zhain().
-      window_open("/", (w) -> eq("No content!", text(w, "#txt"))).
-      window_open("/index.html", (w) -> eq("/index.html", text(w, "#txt"))).
+      window_open("/", (w) -> w.router.initDone; eq("No content!", text(w, "#txt"))).
+      window_open("/index.html", (w) -> w.router.initDone; eq("/index.html", text(w, "#txt"))).
       test()
     it "should handle click to /foo without reloading page", zhain().
-      window_open("/", (w) -> eq("No content!", text(w, "#txt"))).
+      window_open("/", (w) -> w.router.initDone; eq("No content!", text(w, "#txt"))).
       click("#pageSame", (w) -> eq("Ok!", text(w, "#pageSame"))).
       click("#link_foo", (w) -> eq(["Ok!", "/foo"], [text(w, "#pageSame"), text(w, "#txt")])).
       test()

@@ -99,6 +99,7 @@ class KiRoutes
   disableUrlUpdate: false
   fallbackRoute: false
   init: false
+  initDone: false
   paramVerifier: false
   transparentRouting: () =>
     @init = true
@@ -108,6 +109,7 @@ class KiRoutes
       @renderInitialView()
     finally
       @init = false
+      @initDone = true
   hashbangRouting: () =>
     @pushStateSupport = false
     if !@hashchangeSupport
