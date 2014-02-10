@@ -22,7 +22,7 @@
     "benchmark": "1.0.0",
     "sinon": "1.6.0",
     "grunt-contrib-uglify": "0.2.2",
-    "chai": "1.6.0",
+    "zhain": "0.0.10",
     "mocha": "1.17.1",
     "grunt-contrib-connect": "0.6.0",
     "grunt-contrib-watch": "0.5.3"

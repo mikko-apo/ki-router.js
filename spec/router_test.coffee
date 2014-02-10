@@ -4,6 +4,36 @@ eq = (a,b) ->
   if JSON.stringify(a) != JSON.stringify(b)
     throw new Error( JSON.stringify(a) + " is not equal to " + JSON.stringify(b))
 
+window.Zhain.prototype.test = (done) ->
+  @end (err) -> done(err)
+
+window.Zhain.prototype.trie = trie = (done, attempts, fn) ->
+  try
+    fn()
+    done()
+  catch error
+    if attempts == 0
+      done(error)
+    callback = -> window.Zhain.prototype.trie(done, attempts-1, fn)
+    setTimeout callback, 100
+
+window.Zhain.prototype.window_open = (url, checker) ->
+  return @do (done) ->
+    w = @w = window.open(url, "test_window")
+    window.Zhain.prototype.trie(done, 15, -> checker(w))
+
+window.Zhain.prototype.click = (selector, checker) ->
+  return @do (done) ->
+    w = @w
+    s(w, selector).click()
+    window.Zhain.prototype.trie(done, 15, -> checker(w))
+
+s = (w, selector) ->
+  w.document.querySelector(selector)
+
+text = (w, selector) ->
+  s(w, selector).innerHTML
+
 describe "KiRouter", ->
   describe "should execute operation based on matched matchedRoute", ->
     router = KiRouter.router()
@@ -54,3 +84,13 @@ describe "KiRouter", ->
         throw new Error("should have raised an exception!")
       catch
       eq(["uups!"], errors)
+  describe "should handle url rendering", ->
+    it "should render correct view", zhain().
+      window_open("/", (w) -> eq("No content!", text(w, "#txt"))).
+      window_open("/index.html", (w) -> eq("/index.html", text(w, "#txt"))).
+      test()
+    it "should handle click to /foo without reloading page", zhain().
+      window_open("/", (w) -> eq("No content!", text(w, "#txt"))).
+      click("#pageSame", (w) -> eq("Ok!", text(w, "#pageSame"))).
+      click("#link_foo", (w) -> eq(["Ok!", "/foo"], [text(w, "#pageSame"), text(w, "#txt")])).
+      test()
