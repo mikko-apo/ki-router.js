@@ -197,7 +197,6 @@ Ki-router provides a listener mechanism to listen to exceptions. The exception i
 To run automated tests run following:
 
     npm install
-    bower install
     grunt connect:http8080 build watch
 
 Connect your browser to [http://localhost:8080/spec/test.html](http://localhost:8080/spec/test.html) to run tests.

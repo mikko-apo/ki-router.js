@@ -20,6 +20,7 @@ limitations under the License.
 
 # Known bugs:
 # - chrome fires one onpopstate when page has loaded, firefox doesn't
+# - browser tests don't work on safari
 # Missing features:
 # - three modes: transparentRouting, hashbangRouting and historyApiRouting
 # - four modes: transparentRouting, hashbangRouting, hashRouting and historyApiRouting
