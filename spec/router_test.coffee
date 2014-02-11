@@ -84,13 +84,16 @@ describe "KiRouter", ->
         throw new Error("should have raised an exception!")
       catch
       eq(["uups!"], errors)
-  describe "should handle url rendering", ->
-    it "should render correct view", zhain().
-      window_open("/", (w) -> w.router.initDone; eq("No content!", text(w, "#txt"))).
-      window_open("/index.html", (w) -> w.router.initDone; eq("/index.html", text(w, "#txt"))).
-      test()
-    it "should handle click to /foo without reloading page", zhain().
-      window_open("/", (w) -> w.router.initDone; eq("No content!", text(w, "#txt"))).
-      click("#pageSame", (w) -> eq("Ok!", text(w, "#pageSame"))).
-      click("#link_foo", (w) -> eq(["Ok!", "/foo"], [text(w, "#pageSame"), text(w, "#txt")])).
-      test()
+  describe "in browser", ->
+    beforeEach ->
+      window.open("about:blank", "test_window")
+    describe "should handle url rendering", ->
+      it "should render correct view", zhain().
+        window_open("/", (w) -> w.router.initDone; eq("No content!", text(w, "#txt"))).
+        window_open("/index.html", (w) -> w.router.initDone; eq("/index.html", text(w, "#txt"))).
+        test()
+      it "should handle click to /foo without reloading page", zhain().
+        window_open("/", (w) -> w.router.initDone; eq("No content!", text(w, "#txt"))).
+        click("#pageSame", (w) -> eq("Ok!", text(w, "#pageSame"))).
+        click("#link_foo", (w) -> eq(["Ok!", "/foo"], [text(w, "#pageSame"), text(w, "#txt")])).
+        test()
