@@ -206,6 +206,7 @@ You can also connect to ports 80, 443, 8080 and 8443 with
     grunt connect build watch
 
 # Release History
+* 2014-02-24 1.1.11 Fix for Chrome and Safari popstate on page load, popstate is ignored until page is rendered once through click
 * 2014-02-02 1.1.10 IE6 support, addExceptionListener
 * 2014-01-28 1.1.9 IE8 support and historyApiRouting
 * 2014-01-17 1.1.8 targetHostSame fix protocols needed a ":"

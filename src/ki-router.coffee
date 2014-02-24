@@ -72,6 +72,7 @@ class KiRoutes
   exec: (path) =>
     if matched = @find(path)
       @log("Found route for", path, " Calling function with params ", matched.params)
+      @renderCount += 1
       try
         matched.result = matched.fn(matched.params)
         for listener in @postExecutionListeners
@@ -101,6 +102,9 @@ class KiRoutes
   init: false
   initDone: false
   paramVerifier: false
+  renderCount: 0
+  clickCount: 0
+
   transparentRouting: () =>
     @init = true
     try
@@ -138,13 +142,14 @@ class KiRoutes
               @log("Using hashbang change to trigger rendering for", href)
               @disableEventDefault(event)
               window.location.href = @hashBaseUrl + "#!" + href
-              return
-            if @exec(href)
+            else if @exec(href)
               @log("Rendered", href)
               @disableEventDefault(event)
+              @clickCount += 1
               @updateUrl(href)
             else
               @log("Letting browser render url because no matching route", href)
+            return
 
   disableEventDefault: (ev) =>
     if ev.preventDefault
@@ -207,17 +212,17 @@ class KiRoutes
   attachLocationChangeListener: =>
     if @pushStateSupport
       @addListener window, "popstate", (event) =>
-        href = window.location.pathname
-        @log("Rendering onpopstate", href)
-        @renderUrl(href)
+        if @clickCount > 0
+          href = window.location.pathname
+          @log("Rendering popstate", href)
+          @renderUrl(href)
     else
       if @hashchangeSupport
         @addListener window, "hashchange", (event) =>
           if window.location.hash.substring(0, 2) == "#!"
             href = window.location.hash.substring(2)
-            if !@previous || href != @previous.path
-              @log("Rendering onhashchange", href)
-              @renderUrl(href)
+            @log("Rendering hashchange", href)
+            @renderUrl(href)
 
   renderInitialView: =>
     @log("Rendering initial page")

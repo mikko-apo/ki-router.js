@@ -9,6 +9,7 @@
 <a href="/">root /</a>
 <a href="/index.html">index.html</a>
 <a id="link_foo" href="/foo">foo</a>
+<a id="link_foo" href="/bar">bar</a>
 
 <h3>Links with target</h3>
 <a href="/index.html" target="_blank">_blank</a>
@@ -22,7 +23,18 @@
 
 <p id="txt">No content!</p>
 
+<h3>Router info</h3>
+
+<table>
+    <tr>
+        <td>router.renderCount</td>
+        <td id="routerRenderCount"></td>
+    </tr>
+</table>
+
 <h3>Browser info</h3>
+
+<h4>Events</h4>
 <table>
     <tr>
         <th>Event</th>
@@ -31,19 +43,36 @@
         <th>Count</th>
     </tr>
     <tr>
-        <td>onpopstate</td>
-        <td id="onpopstatetxt"></td>
-        <td id="onpopstatevaluetxt"></td>
-        <td id="onpopstatecount"></td>
+        <td>popstate</td>
+        <td id="popstate"></td>
+        <td id="popstate.value"></td>
+        <td id="popstate.count"></td>
     </tr>
     <tr>
-        <td>onhashchange</td>
-        <td id="onhashchangetxt"></td>
-        <td id="onhashchangevaluetxt"></td>
-        <td id="onhashchangecount"></td>
+        <td>hashchange</td>
+        <td id="hashchange"></td>
+        <td id="hashchange.value"></td>
+        <td id="hashchange.count"></td>
     </tr>
 </table>
 
+<h4>Browser variables available on start</h4>
+<table>
+    <tr>
+        <th>Variable</th>
+        <th>Available</th>
+        <th>Value</th>
+    </tr>
+    <tr>
+        <td>window.history</td>
+        <td id="window.history"></td>
+    </tr>
+    <tr>
+        <td>window.history.state</td>
+        <td id="window.history.state"></td>
+        <td id="window.history.state.value"></td>
+    </tr>
+</table>
 <script type="text/javascript" src="/dist/ki-router.js"></script>
 
 <script>
@@ -53,23 +82,37 @@
     function set(text) {
         return setText('txt', text);
     }
-    setText("onhashchangetxt", ("onhashchange" in window) ? "Yes :)" : "No");
-    setText("onpopstatetxt", ("onpopstate" in window) ? "Yes :)" : "No");
+    setText("hashchange", ("onhashchange" in window) ? "Yes" : "No");
+    setText("popstate", ("onpopstate" in window) ? "Yes" : "No");
+
+    if ("history" in window) {
+        setText("window.history", "Yes");
+        if ("state" in window.history) {
+            setText("window.history.state", "Yes");
+            setText("window.history.state.value", JSON.stringify(window.history.state));
+        }
+    }
+
 
     var router = KiRouter.router();
 
-    var hashchangecount = 0;
     var popstatecount = 0;
     router.addListener(window, "popstate", function (e) {
-        setText('onpopstatevaluetxt', window.location.pathname);
+        setText('popstate.value', window.location.pathname);
         popstatecount += 1;
-        setText('onpopstatecount', popstatecount);
+        setText('popstate.count', popstatecount);
     });
+    var hashchangecount = 0;
     router.addListener(window, "hashchange", function (e) {
-        setText('onhashchangevaluetxt', window.location.hash);
+        setText('hashchange.value', window.location.hash);
         hashchangecount += 1;
-        setText('onhashchangevaluecount', hashchangecount);
+        setText('hashchange.count', hashchangecount);
     });
+
+    var renderCount = 0;
+    router.addPostExecutionListener(function() {
+        setText("routerRenderCount", router.renderCount);
+    })
 
     router.hashBaseUrl = "/index.html";
     router.add("/index.html", function (params) {
@@ -79,6 +122,7 @@
         return set(this.path)
     });
     router.debug = true;
+//    router.pushStateSupport = false;
     router.transparentRouting();
 
 </script>
