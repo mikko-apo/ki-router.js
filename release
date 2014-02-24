@@ -13,7 +13,7 @@ git pull --rebase origin master
 
 echo "Building"
 npm install
-npm test
+# npm test
 ./grunt
 
 echo "Updating files"
