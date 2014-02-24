@@ -23,7 +23,7 @@ limitations under the License.
 
   KiRouter = {};
 
-  KiRouter.version = '1.1.10';
+  KiRouter.version = '1.1.11';
 
   if (typeof module !== "undefined" && module !== null) {
     module.exports = KiRouter;
@@ -100,6 +100,7 @@ limitations under the License.
       var error, exceptionListener, listener, matched, _i, _j, _len, _len1, _ref, _ref1;
       if (matched = this.find(path)) {
         this.log("Found route for", path, " Calling function with params ", matched.params);
+        this.renderCount += 1;
         try {
           matched.result = matched.fn(matched.params);
           _ref = this.postExecutionListeners;
@@ -162,7 +163,13 @@ limitations under the License.
 
     KiRoutes.prototype.init = false;
 
+    KiRoutes.prototype.initDone = false;
+
     KiRoutes.prototype.paramVerifier = false;
+
+    KiRoutes.prototype.renderCount = 0;
+
+    KiRoutes.prototype.clickCount = 0;
 
     KiRoutes.prototype.transparentRouting = function() {
       this.init = true;
@@ -172,6 +179,7 @@ limitations under the License.
         return this.renderInitialView();
       } finally {
         this.init = false;
+        this.initDone = true;
       }
     };
 
@@ -205,14 +213,13 @@ limitations under the License.
                 _this.log("Using hashbang change to trigger rendering for", href);
                 _this.disableEventDefault(event);
                 window.location.href = _this.hashBaseUrl + "#!" + href;
-                return;
-              }
-              if (_this.exec(href)) {
+              } else if (_this.exec(href)) {
                 _this.log("Rendered", href);
                 _this.disableEventDefault(event);
-                return _this.updateUrl(href);
+                _this.clickCount += 1;
+                _this.updateUrl(href);
               } else {
-                return _this.log("Letting browser render url because no matching route", href);
+                _this.log("Letting browser render url because no matching route", href);
               }
             }
           }
@@ -303,9 +310,11 @@ limitations under the License.
       if (this.pushStateSupport) {
         return this.addListener(window, "popstate", function(event) {
           var href;
-          href = window.location.pathname;
-          _this.log("Rendering onpopstate", href);
-          return _this.renderUrl(href);
+          if (_this.clickCount > 0) {
+            href = window.location.pathname;
+            _this.log("Rendering popstate", href);
+            return _this.renderUrl(href);
+          }
         });
       } else {
         if (this.hashchangeSupport) {
@@ -313,10 +322,8 @@ limitations under the License.
             var href;
             if (window.location.hash.substring(0, 2) === "#!") {
               href = window.location.hash.substring(2);
-              if (!_this.previous || href !== _this.previous.path) {
-                _this.log("Rendering onhashchange", href);
-                return _this.renderUrl(href);
-              }
+              _this.log("Rendering hashchange", href);
+              return _this.renderUrl(href);
             }
           });
         }
