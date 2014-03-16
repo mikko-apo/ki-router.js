@@ -1,33 +1,27 @@
 # Sinatra route syntax + pushState/hashbang support + plain urls
 
-Sinatra defined a powerful url routing syntax that is used to identify different views in the application and the
-parameters used by the view. Javascript single page apps can benefit from the same by using ki-router.js.
+[Sinatra](http://www.sinatrarb.com/) has a powerful url routing syntax that is used to identify different views in the application and the
+parameters used by the view. Javascript based apps can benefit from the same approach by using ki-router.js.
 
 # Why should you use it?
 
-ki-router.js makes it relative easy to implement a modern single page app that supports clean REST-like bookmarkable
-urls. It supports three kinds of single page app modes:
+If you want:
+* Bookmarkable and clean REST like urls for example: /book/123
+* Url parameter parsing: params.id => "123"
+* Centralized and clear control structure for the application
 
-* historyApi
-* hashbang
-* transparent
+    router.add("/book/:id", function (params) { show_book( params.id ) } );
+
+ki-router.js makes it easy to create a modern single page app in a clean way:
+* Use regular links in HTML. This leads to cleaner javascript and there is no more need to bind view change listeners in javascript
+* Browser support. Firefox, Safari, Chrome, IE10/9/8. Older browsers are also supported if the backend server is able to render the page fully
+* Gracefully degrading web app with different alternative strategies (pushState -> hashBang -> javascript but no pushState/hashBang -> no javascript)
 
 To use it all you need to do to is:
 
-* Use plain HTML with regular a href links
 * Include ki-router.js
 * Configure router routes
-* (For transparent mode you need to configure backend server to return the same page for all possible urls)
-
-In return you get:
-
-* Bookmarkable and clean REST like urls
-* Url parameter parsing
-* Centralized and clear control structure for the application
-* Cleaner javascript, there is no more need to bind view change listeners in javascript
-* Browser support: Firefox, Safari, Chrome, IE10/9/8. Older browsers are also supported if the backend server is able to render the page fully.
-* Gracefully degrading web app with different alternative strategies (pushState -> hashBang -> javascript but no pushState/hashBang -> no javascript)
-
+* Use plain HTML with regular a href links (single page app mode)
 
 Additional technical features include:
 
@@ -36,25 +30,47 @@ Additional technical features include:
 * Simple integration with other javascript frameworks. Attaches listeners to document level, does not interfere with events handled by application's javascript
 * No dependencies on other javascript libraries
 
-# Three modes of operation
+# Five ways to use ki-router.js
+
+ki-router.js is good for parsing URL like strings and it works without a browser.
+You can configure any number of urls and functions. For example, like this:
+
+    router = KiRouter.router();
+    router.add("/say/*/to/:name", function (params) { say_hello( params.splat, params.name ) } );
+    router.exec("/say/Hello 123/456/to/world")
+
+You can use ki-router.js to trigger init functions for different views:
+
+    var router = KiRouter.router();
+    router.add("/prelaunch", function (params) { prelaunch.init() } );
+    router.add("/signup", function (params) { signup.init() } );
+    $( document ).ready(function() {
+        router.renderInitialView();
+    });
+
+For single page apps, ki-router.js supports three kinds modes:
+
+* HistoryApi
+* Hashbang
+* Transparent
+
+All single page app modes intercept clicks to A tags if the href matches a known route.
 
 ## HistoryApi mode
 
-This is the best mode if you need search engine support and nice urls. In HistoryApi mode ki-router intercepts link clicks
+This is the best mode if you need search engine support and nice urls. In HistoryApi mode ki-router.js intercepts link clicks
 only if the browser supports the History API. With older browsers (IE9/8) each link click forces browser to get a new page
-and ki-router renders the correct view. ki-router will not fall back to hashbang links.
-
-For search engine support, each page rendered by the server needs to include the relevant content for that specific page.
+and ki-router.js renders the correct view. Check transparent mode if you want fallback to hashbangs.
 
 Additional things to consider:
 
-* Backend server needs be configured so that it returns the correct content for all possible links (search engine support)
+* Backend server needs be configured so that it returns a page for all possible urls. The page can have same content if you use ki-router.js to render the correct view.
+* If you need search engine support each page rendered by the server needs to include the relevant content for that specific page.
 * Hashbangs are not used because search engine support would need to be implemented for both regular links and _escaped_fragments_
-* Rendering on old browsers gets a little slower because the content might be rendered twice
 
 ## Hashbang mode
 
-Hashbang mode is useful if you either prefer hashbang urls or want to serve your application from single url
+Hashbang mode is useful if you either prefer hashbang urls or want to serve your application from a single url or file.
 
 Additional things to consider:
 * Links in HTML document can be in either plain format or prefixed with "#!". Both of these will work: "/path/123" and "#!/path/123"
@@ -62,10 +78,10 @@ Additional things to consider:
 
 ## Transparent mode
 
-Transparent mode uses HTML5 History API to simulate a regular link based web app. It intercepts clicks to A tags and
-if it knows the url it renders the correct view and changes the browser url.
+Transparent mode uses HTML5 History API to simulate a regular link based web app.
 If the browser doesn't support the History Api, it switches to using hashbangs.
-If you don't like hashbangs in the url (except as a fallback), use this mode.
+This mode is useful if you want to optimize network traffic as ki-router.js tries to make even older browser work
+as single page apps.
 
 Additional things to consider:
 
