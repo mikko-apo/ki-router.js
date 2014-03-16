@@ -5,24 +5,22 @@ parameters used by the view. Javascript based apps can benefit from the same app
 
 # Why should you use it?
 
-1. ki-router.js gives you:
+ki-router.js gives you:
 * Bookmarkable and clean REST like urls for example: /book/123
 * Url parameter parsing: params.id => "123"
 * Centralized and clear control structure for the application
 
-2. ki-router.js also makes it easy to create a modern single page app in a clean way:
+ki-router.js also makes it easy to create a modern single page app in a clean way:
 * Use regular links in HTML. This leads to cleaner javascript and there is no more need to bind view change listeners in javascript
 * Browser support. Firefox, Safari, Chrome, IE10/9/8. Older browsers are also supported if the backend server is able to render the page fully
 * Gracefully degrading web app with different alternative strategies (pushState -> hashBang -> javascript but no pushState/hashBang -> no javascript)
 
-3. To use it all you need to do to is:
-
+To use it all you need to do to is:
 * Include ki-router.js
 * Configure router routes
 * Use plain HTML with regular a href links (single page app mode)
 
-4. Additional technical features include:
-
+Additional technical features include:
 * Support for browser keyboard shortcuts so users can open new tabs and windows easily: ctrl, shift, alt and meta keys
 * Support for A tag's target attribute: ___blank, ___self, ___parent, ___top, window name
 * Simple integration with other javascript frameworks. Attaches listeners to document level, does not interfere with events handled by application's javascript
