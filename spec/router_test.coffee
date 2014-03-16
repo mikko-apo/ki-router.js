@@ -20,6 +20,8 @@ window.Zhain.prototype.trie = trie = (done, attempts, fn) ->
 window.Zhain.prototype.window_open = (url, checker) ->
   return @do (done) ->
     w = @w = window.open(url, "test_window")
+    if !w
+      throw new Error("Could not open pop-up window. Please enable popups.")
     window.Zhain.prototype.trie(done, 100, -> checker(w))
 
 window.Zhain.prototype.click = (selector, checker) ->
