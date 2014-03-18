@@ -259,7 +259,7 @@ class KiRoutes
     else if (element.attachEvent) # // IE DOM
       element.attachEvent("on"+event, fn);
     else
-      raise "addListener can not attach listeners!"
+      throw new Error("addListener can not attach listeners!")
 
 class SinatraRouteParser
   constructor: (route) ->
