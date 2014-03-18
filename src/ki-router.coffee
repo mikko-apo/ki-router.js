@@ -19,10 +19,7 @@ limitations under the License.
 "use strict"
 
 # Known bugs:
-# - chrome fires one onpopstate when page has loaded, firefox doesn't
-# - browser tests don't work on safari
 # Missing features:
-# - three modes: transparentRouting, hashbangRouting and historyApiRouting
 # - four modes: transparentRouting, hashbangRouting, hashRouting and historyApiRouting
 # - $("a").click does not register but $("a")[0].click does
 # - more complete sinatra path parsing, JavascriptRouteParser
@@ -102,6 +99,8 @@ class KiRoutes
   addExceptionListener: (fn) =>
     @exceptionListeners.push(fn)
 
+  # Browser extensions
+
   pushStateSupport: history && history.pushState
   hashchangeSupport: "onhashchange" of window
   hashBaseUrl: false
@@ -142,7 +141,7 @@ class KiRoutes
           if @checkIfOkToRender(event, aTag)
             href = aTag.attributes.href.nodeValue
             @log("Click event passed all checks")
-            if !@pushStateSupport && @hashchangeSupport && @hashBaseUrl && @hashBaseUrl != window.location.pathname
+            if @checkIfHashBaseUrlRedirectNeeded()
               @log("Using hashbang change to trigger rendering for", href)
               @disableEventDefault(event)
               window.location.href = @hashBaseUrl + "#!" + href
@@ -154,6 +153,9 @@ class KiRoutes
             else
               @log("Letting browser render url because no matching route", href)
             return
+
+  checkIfHashBaseUrlRedirectNeeded: () =>
+    !@pushStateSupport && @hashchangeSupport && @hashBaseUrl && @hashBaseUrl != window.location.pathname
 
   checkIfOkToRender: (event, aTag) =>
     @blog("- A tag", aTag) &&
@@ -236,7 +238,6 @@ class KiRoutes
             @renderUrl(href)
 
   renderInitialView: =>
-    @log("Rendering initial page")
     initialUrl = window.location.pathname
     if @pushStateSupport
       if window.location.hash.substring(0, 2) == "#!" && @find(window.location.hash.substring(2))
@@ -245,6 +246,7 @@ class KiRoutes
       if @hashchangeSupport
         if window.location.hash.substring(0, 2) == "#!"
           initialUrl = window.location.hash.substring(2)
+    @log("Rendering initial page")
     @renderUrl(initialUrl)
 
   renderUrl: (url) =>
@@ -273,7 +275,7 @@ class KiRoutes
       throw new Error("addListener can not attach listeners!")
 
 class SinatraRouteParser
-constructor: (route) ->
+  constructor: (route) ->
     @keys = []
     route = route.substring(1)
     segments = []

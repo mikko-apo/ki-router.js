@@ -8,8 +8,20 @@
 <h3>Links</h3>
 <a href="/">root /</a>
 <a href="/index.html">index.html</a>
-<a id="link_foo" href="/foo">foo</a>
-<a id="link_foo" href="/bar">bar</a>
+<a href="/foo" id="link_foo">foo</a>
+<a href="/bar">bar</a>
+
+<h3>Hash links, #</h3>
+<a href="#/">root /</a>
+<a href="#/index.html">index.html</a>
+<a href="#/foo">foo</a>
+<a href="#/bar">bar</a>
+
+<h3>Hashbang links, #!</h3>
+<a href="#!/">root /</a>
+<a href="#!/index.html">index.html</a>
+<a href="#!/foo">foo</a>
+<a href="#!/bar">bar</a>
 
 <h3>Links with target</h3>
 <a href="/index.html" target="_blank">_blank</a>
@@ -92,7 +104,6 @@
             setText("window.history.state.value", JSON.stringify(window.history.state));
         }
     }
-
 
     var router = KiRouter.router();
 

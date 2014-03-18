@@ -42,9 +42,9 @@ module.exports = (grunt) ->
           protocol: 'https'
           port: 443
           base: '.'
-      http8080:
+      http8090:
         options:
-          port: 8080
+          port: 8090
           base: '.'
       https8443:
         options:
