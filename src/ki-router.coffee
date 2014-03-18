@@ -68,6 +68,7 @@ class KiRoutes
         console.log("ki-router: " + JSON.stringify(arguments))
       else
         console.log(arguments)
+    return
 
   add: (urlPattern, fn, metadata) =>
     @routes.push({route: new SinatraRouteParser(urlPattern), fn: fn, urlPattern: urlPattern, metadata: metadata})
@@ -113,6 +114,7 @@ class KiRoutes
   historyApiRouting: () =>
     @hashchangeSupport = false
     @transparentRouting()
+    return
 
   transparentRouting: () =>
     @init = true
@@ -120,6 +122,7 @@ class KiRoutes
       @attachClickListener()
       @attachLocationChangeListener()
       @renderInitialView()
+      return
     finally
       @init = false
       @initDone = true
@@ -129,6 +132,7 @@ class KiRoutes
     if !@hashchangeSupport
       throw new Error("No hashchange support!")
     @transparentRouting()
+    return
 
   attachClickListener: =>
     if @pushStateSupport || @hashchangeSupport
@@ -141,18 +145,23 @@ class KiRoutes
           if @checkIfOkToRender(event, aTag)
             href = aTag.attributes.href.nodeValue
             @log("Click event passed all checks")
-            if @checkIfHashBaseUrlRedirectNeeded()
-              @log("Using hashbang change to trigger rendering for", href)
-              @disableEventDefault(event)
-              window.location.href = @hashBaseUrl + "#!" + href
-            else if @exec(href)
-              @log("Rendered", href)
-              @disableEventDefault(event)
-              @clickCount += 1
-              @updateUrl(href)
-            else
-              @log("Letting browser render url because no matching route", href)
-            return
+            @renderUrlOrRedirect(href, event)
+        return
+    return
+
+  renderUrlOrRedirect: (href, event) =>
+    if @checkIfHashBaseUrlRedirectNeeded()
+      @log("Using hashbang change to trigger rendering for", href)
+      @disableEventDefault(event)
+      window.location.href = @hashBaseUrl + "#!" + href
+    else if @exec(href)
+      @log("Rendered", href)
+      @disableEventDefault(event)
+      @clickCount += 1
+      @updateUrl(href)
+    else
+      @log("Letting browser render url because no matching route", href)
+    return
 
   checkIfHashBaseUrlRedirectNeeded: () =>
     !@pushStateSupport && @hashchangeSupport && @hashBaseUrl && @hashBaseUrl != window.location.pathname
@@ -165,10 +174,12 @@ class KiRoutes
     @blog("- Link host same as current window", @targetHostSame(aTag))
 
   disableEventDefault: (ev) =>
-    if ev.preventDefault
-      ev.preventDefault()
-    else
-      ev.returnValue = false
+    if ev
+      if ev.preventDefault
+        ev.preventDefault()
+      else
+        ev.returnValue = false
+    return
 
   blog: (str, v) =>
     @log(str + ", result: " + v)
@@ -229,6 +240,7 @@ class KiRoutes
           href = window.location.pathname
           @log("Rendering popstate", href)
           @renderUrl(href)
+        return
     else
       if @hashchangeSupport
         @addListener window, "hashchange", (event) =>
@@ -236,6 +248,8 @@ class KiRoutes
             href = window.location.hash.substring(2)
             @log("Rendering hashchange", href)
             @renderUrl(href)
+          return
+    return
 
   renderInitialView: =>
     initialUrl = window.location.pathname
@@ -248,6 +262,7 @@ class KiRoutes
           initialUrl = window.location.hash.substring(2)
     @log("Rendering initial page")
     @renderUrl(initialUrl)
+    return
 
   renderUrl: (url) =>
     if ret = @exec(url)
@@ -265,6 +280,7 @@ class KiRoutes
       else
         if @hashchangeSupport
           window.location.hash = "!" + href
+    return
 
   addListener: (element, event, fn) =>
     if element.addEventListener  # W3C DOM
