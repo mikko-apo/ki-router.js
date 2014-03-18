@@ -237,16 +237,13 @@ class KiRoutes
     @renderUrl(initialUrl)
 
   renderUrl: (url) =>
-    try
-      if ret = @exec(url)
-        return ret
+    if ret = @exec(url)
+      return ret
+    else
+      if @fallbackRoute
+        return @fallbackRoute(url)
       else
-        if @fallbackRoute
-          return @fallbackRoute(url)
-        else
-          @log("Could not resolve route for", url)
-    catch err
-      @log("Could not resolve route for", url, " exception", err)
+        @log("Could not resolve route for", url)
 
   updateUrl: (href) =>
     if !@disableUrlUpdate

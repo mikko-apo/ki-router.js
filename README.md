@@ -218,6 +218,7 @@ You can also connect to ports 80, 443, 8080 and 8443 with
     grunt connect build watch
 
 # Release History
+* 2014-03-18 1.1.12 Removed harmful try catch that hid errors (thanks raimohanska). Testing reports if popups are blocked (thanks tkurki)
 * 2014-02-24 1.1.11 Fix for Chrome and Safari popstate on page load, popstate is ignored until page is rendered once through click
 * 2014-02-02 1.1.10 IE6 support, addExceptionListener
 * 2014-01-28 1.1.9 IE8 support and historyApiRouting
@@ -227,7 +228,7 @@ You can also connect to ports 80, 443, 8080 and 8443 with
 * 2014-01-17 1.1.5 Debug log uses JSON.stringify to support browsers
 * 2014-01-07 1.1.4 Firefox 26 actually sets target.username to empty string
 * 2013-12-30 1.1.3 Fix for Firefox 26 setting window.location.username to undefined instead of empty string
-* 2013-12-16 1.1.2 Add support for listening route triggering. It's also possible to define metadata for routes
+* 2013-12-16 1.1.2 Add support for listening route triggering. It's also possible to define metadata for routes (thanks jliuhtonen)
 * 2013-11-20 1.1.1 Added KiRouter.version that is updated automatically for releases
 * 2013-11-20 1.1.0 renderInitialView does not change url format automatically anymore
 * 2013-11-07 1.0.0 Supports now two modes "transparent" and "hashbang"
