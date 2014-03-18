@@ -61,14 +61,20 @@ class KiRoutes
   postExecutionListeners: []
   exceptionListeners: []
   debug: false
+  previous: false
+  paramVerifier: false
+  renderCount: 0
+
   log: =>
     if @debug && window.console && console && console.log
       if JSON.stringify
         console.log("ki-router: " + JSON.stringify(arguments))
       else
         console.log(arguments)
+
   add: (urlPattern, fn, metadata) =>
     @routes.push({route: new SinatraRouteParser(urlPattern), fn: fn, urlPattern: urlPattern, metadata: metadata})
+
   exec: (path) =>
     if matched = @find(path)
       @log("Found route for", path, " Calling function with params ", matched.params)
@@ -84,26 +90,30 @@ class KiRoutes
         throw error
       @previous = matched
       return matched
+
   find: (path) =>
     for candidate in @routes
       if params = candidate.route.parse(path, @paramVerifier)
         return {params: params, route: candidate.matchedRoute, fn: candidate.fn, urlPattern: candidate.urlPattern, path: path, metadata: candidate.metadata}
+
   addPostExecutionListener: (fn) =>
     @postExecutionListeners.push(fn)
+
   addExceptionListener: (fn) =>
     @exceptionListeners.push(fn)
 
   pushStateSupport: history && history.pushState
   hashchangeSupport: "onhashchange" of window
   hashBaseUrl: false
-  previous: false
   disableUrlUpdate: false
   fallbackRoute: false
   init: false
   initDone: false
-  paramVerifier: false
-  renderCount: 0
   clickCount: 0
+
+  historyApiRouting: () =>
+    @hashchangeSupport = false
+    @transparentRouting()
 
   transparentRouting: () =>
     @init = true
@@ -114,13 +124,11 @@ class KiRoutes
     finally
       @init = false
       @initDone = true
+
   hashbangRouting: () =>
     @pushStateSupport = false
     if !@hashchangeSupport
       throw new Error("No hashchange support!")
-    @transparentRouting()
-  historyApiRouting: () =>
-    @hashchangeSupport = false
     @transparentRouting()
 
   attachClickListener: =>
@@ -131,11 +139,7 @@ class KiRoutes
         if target
           @log("Checking if click event should be rendered")
           aTag = @findATag(target)
-          if @blog("- A tag", aTag) &&
-          @blog("- Left mouse button click", @leftMouseButton(event)) &&
-          @blog("- Not meta keys pressed", !@metakeyPressed(event)) &&
-          @blog("- Target attribute is current window", @targetAttributeIsCurrentWindow(aTag)) &&
-          @blog("- Link host same as current window", @targetHostSame(aTag))
+          if @checkIfOkToRender(event, aTag)
             href = aTag.attributes.href.nodeValue
             @log("Click event passed all checks")
             if !@pushStateSupport && @hashchangeSupport && @hashBaseUrl && @hashBaseUrl != window.location.pathname
@@ -150,6 +154,13 @@ class KiRoutes
             else
               @log("Letting browser render url because no matching route", href)
             return
+
+  checkIfOkToRender: (event, aTag) =>
+    @blog("- A tag", aTag) &&
+    @blog("- Left mouse button click", @leftMouseButton(event)) &&
+    @blog("- Not meta keys pressed", !@metakeyPressed(event)) &&
+    @blog("- Target attribute is current window", @targetAttributeIsCurrentWindow(aTag)) &&
+    @blog("- Link host same as current window", @targetHostSame(aTag))
 
   disableEventDefault: (ev) =>
     if ev.preventDefault
@@ -262,7 +273,7 @@ class KiRoutes
       throw new Error("addListener can not attach listeners!")
 
 class SinatraRouteParser
-  constructor: (route) ->
+constructor: (route) ->
     @keys = []
     route = route.substring(1)
     segments = []
