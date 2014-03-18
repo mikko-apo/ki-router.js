@@ -23,7 +23,7 @@ limitations under the License.
 
   KiRouter = {};
 
-  KiRouter.version = '1.1.11';
+  KiRouter.version = '1.1.12';
 
   if (typeof module !== "undefined" && module !== null) {
     module.exports = KiRouter;
@@ -349,20 +349,15 @@ limitations under the License.
     };
 
     KiRoutes.prototype.renderUrl = function(url) {
-      var err, ret;
-      try {
-        if (ret = this.exec(url)) {
-          return ret;
+      var ret;
+      if (ret = this.exec(url)) {
+        return ret;
+      } else {
+        if (this.fallbackRoute) {
+          return this.fallbackRoute(url);
         } else {
-          if (this.fallbackRoute) {
-            return this.fallbackRoute(url);
-          } else {
-            return this.log("Could not resolve route for", url);
-          }
+          return this.log("Could not resolve route for", url);
         }
-      } catch (_error) {
-        err = _error;
-        return this.log("Could not resolve route for", url, " exception", err);
       }
     };
 
