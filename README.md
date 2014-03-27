@@ -77,7 +77,7 @@ Additional things to consider:
 Transparent mode uses HTML5 History API to simulate a regular link based web app.
 If the browser doesn't support the History Api, it switches to using hashbangs.
 This mode is useful if you want to optimize network traffic as ki-router.js tries to make even older browser work
-as single page apps.
+as single page apps. It's also the only mode to use if your application has more state than is available in the url.
 
 Additional things to consider:
 
