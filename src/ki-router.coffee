@@ -18,6 +18,10 @@ limitations under the License.
 
 "use strict"
 
+# TODO:
+# - Assign multiple routes with one invocation
+# - Ignore hash anchors
+# - Check that bug from Anton
 # Known bugs:
 # Missing features:
 # - four modes: transparentRouting, hashbangRouting, hashRouting and historyApiRouting
