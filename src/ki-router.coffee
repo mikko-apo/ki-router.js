@@ -138,6 +138,49 @@ class KiRoutes
     @transparentRouting()
     return
 
+  # Renders page based on current url
+  renderInitialView: =>
+    initialUrl = window.location.pathname
+    if @pushStateSupport
+      if window.location.hash.substring(0, 2) == "#!" && @find(window.location.hash.substring(2))
+        initialUrl = window.location.hash.substring(2)
+    else
+      if @hashchangeSupport
+        if window.location.hash.substring(0, 2) == "#!"
+          initialUrl = window.location.hash.substring(2)
+    @log("Rendering initial page")
+    @renderUrl(initialUrl)
+    return
+
+  # Notices when browser goes back or forward in history
+  attachLocationChangeListener: =>
+    if @pushStateSupport
+      @addListener window, "popstate", (event) =>
+        if @updateCount > 0 # Chrome sends popstate event when rendering page, don't render unless really needed
+          href = window.location.pathname
+          @log("Rendering popstate", href)
+          @renderUrl(href)
+        return
+    else
+      if @hashchangeSupport
+        @addListener window, "hashchange", (event) =>
+          if window.location.hash.substring(0, 2) == "#!"
+            href = window.location.hash.substring(2)
+            @log("Rendering hashchange", href)
+            @renderUrl(href)
+          return
+    return
+
+  renderUrl: (url) =>
+    if ret = @exec(url)
+      return ret
+    else
+      if @fallbackRoute
+        return @fallbackRoute(url)
+      else
+        @log("Could not resolve route for", url)
+
+  # Click listener catches clicks to A tag and processes the url if it matches known routes
   attachClickListener: =>
     if @pushStateSupport || @hashchangeSupport
       @addListener document, "click", (event) =>
@@ -164,6 +207,16 @@ class KiRoutes
       @updateUrl(href)
     else
       @log("Letting browser render url because no matching route", href)
+    return
+
+  updateUrl: (href) =>
+    @updateCount += 1
+    if !@disableUrlUpdate
+      if @pushStateSupport
+        history.pushState({ }, document.title, href)
+      else
+        if @hashchangeSupport
+          window.location.hash = "!" + href
     return
 
   checkIfHashBaseUrlRedirectNeeded: () =>
@@ -235,56 +288,6 @@ class KiRoutes
       ""
     else
       port
-
-  attachLocationChangeListener: =>
-    if @pushStateSupport
-      @addListener window, "popstate", (event) =>
-        if @updateCount > 0 # Chrome sends popstate event when rendering page, don't render unless really needed
-          href = window.location.pathname
-          @log("Rendering popstate", href)
-          @renderUrl(href)
-        return
-    else
-      if @hashchangeSupport
-        @addListener window, "hashchange", (event) =>
-          if window.location.hash.substring(0, 2) == "#!"
-            href = window.location.hash.substring(2)
-            @log("Rendering hashchange", href)
-            @renderUrl(href)
-          return
-    return
-
-  renderInitialView: =>
-    initialUrl = window.location.pathname
-    if @pushStateSupport
-      if window.location.hash.substring(0, 2) == "#!" && @find(window.location.hash.substring(2))
-        initialUrl = window.location.hash.substring(2)
-    else
-      if @hashchangeSupport
-        if window.location.hash.substring(0, 2) == "#!"
-          initialUrl = window.location.hash.substring(2)
-    @log("Rendering initial page")
-    @renderUrl(initialUrl)
-    return
-
-  renderUrl: (url) =>
-    if ret = @exec(url)
-      return ret
-    else
-      if @fallbackRoute
-        return @fallbackRoute(url)
-      else
-        @log("Could not resolve route for", url)
-
-  updateUrl: (href) =>
-    @updateCount += 1
-    if !@disableUrlUpdate
-      if @pushStateSupport
-        history.pushState({ }, document.title, href)
-      else
-        if @hashchangeSupport
-          window.location.hash = "!" + href
-    return
 
   addListener: (element, event, fn) =>
     if element.addEventListener  # W3C DOM
