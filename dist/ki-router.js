@@ -379,7 +379,7 @@ limitations under the License.
       l = window.location;
       targetUserName = this.fixUsername(aTag.username);
       targetPort = this.fixTargetPort(aTag.port, aTag.protocol);
-      return aTag.hostname === l.hostname && targetPort === l.port && aTag.protocol === l.protocol && targetUserName === l.username && aTag.password === aTag.password;
+      return aTag.hostname === l.hostname && targetPort === l.port && aTag.protocol === l.protocol && targetUserName === this.fixUsername(l.username) && aTag.password === aTag.password;
     };
 
     KiRoutes.prototype.fixUsername = function(username) {
