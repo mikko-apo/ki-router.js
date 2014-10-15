@@ -23,7 +23,7 @@ limitations under the License.
 
   KiRouter = {};
 
-  KiRouter.version = '1.1.13';
+  KiRouter.version = '<version>';
 
   if (typeof module !== "undefined" && module !== null) {
     module.exports = KiRouter;
@@ -44,10 +44,6 @@ limitations under the License.
   KiRoutes = (function() {
     function KiRoutes() {
       this.addListener = __bind(this.addListener, this);
-      this.updateUrl = __bind(this.updateUrl, this);
-      this.renderUrl = __bind(this.renderUrl, this);
-      this.renderInitialView = __bind(this.renderInitialView, this);
-      this.attachLocationChangeListener = __bind(this.attachLocationChangeListener, this);
       this.fixTargetPort = __bind(this.fixTargetPort, this);
       this.fixUsername = __bind(this.fixUsername, this);
       this.targetHostSame = __bind(this.targetHostSame, this);
@@ -59,14 +55,19 @@ limitations under the License.
       this.disableEventDefault = __bind(this.disableEventDefault, this);
       this.checkIfOkToRender = __bind(this.checkIfOkToRender, this);
       this.checkIfHashBaseUrlRedirectNeeded = __bind(this.checkIfHashBaseUrlRedirectNeeded, this);
+      this.updateUrl = __bind(this.updateUrl, this);
       this.renderUrlOrRedirect = __bind(this.renderUrlOrRedirect, this);
       this.attachClickListener = __bind(this.attachClickListener, this);
+      this.renderUrl = __bind(this.renderUrl, this);
+      this.attachLocationChangeListener = __bind(this.attachLocationChangeListener, this);
+      this.renderInitialView = __bind(this.renderInitialView, this);
       this.hashbangRouting = __bind(this.hashbangRouting, this);
       this.transparentRouting = __bind(this.transparentRouting, this);
       this.historyApiRouting = __bind(this.historyApiRouting, this);
       this.addExceptionListener = __bind(this.addExceptionListener, this);
       this.addPostExecutionListener = __bind(this.addPostExecutionListener, this);
       this.find = __bind(this.find, this);
+      this.execRoute = __bind(this.execRoute, this);
       this.exec = __bind(this.exec, this);
       this.add = __bind(this.add, this);
       this.log = __bind(this.log, this);
@@ -106,30 +107,35 @@ limitations under the License.
     };
 
     KiRoutes.prototype.exec = function(path) {
-      var error, exceptionListener, listener, matched, _i, _j, _len, _len1, _ref, _ref1;
+      var matched;
       if (matched = this.find(path)) {
-        this.log("Found route for", path, " Calling function with params ", matched.params);
-        this.renderCount += 1;
-        try {
-          matched.result = matched.fn(matched.params);
-          _ref = this.postExecutionListeners;
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            listener = _ref[_i];
-            listener(matched, this.previous);
-          }
-        } catch (_error) {
-          error = _error;
-          matched.error = error;
-          _ref1 = this.exceptionListeners;
-          for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-            exceptionListener = _ref1[_j];
-            exceptionListener(matched, this.previous);
-          }
-          throw error;
-        }
-        this.previous = matched;
-        return matched;
+        return this.execRoute(matched);
       }
+    };
+
+    KiRoutes.prototype.execRoute = function(matched) {
+      var error, exceptionListener, listener, _i, _j, _len, _len1, _ref, _ref1;
+      this.log("Found route for", matched.path, " Calling function with params ", matched.params);
+      this.renderCount += 1;
+      try {
+        matched.result = matched.fn(matched.params);
+        _ref = this.postExecutionListeners;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          listener = _ref[_i];
+          listener(matched, this.previous);
+        }
+      } catch (_error) {
+        error = _error;
+        matched.error = error;
+        _ref1 = this.exceptionListeners;
+        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+          exceptionListener = _ref1[_j];
+          exceptionListener(matched, this.previous);
+        }
+        throw error;
+      }
+      this.previous = matched;
+      return matched;
     };
 
     KiRoutes.prototype.find = function(path) {
@@ -199,6 +205,62 @@ limitations under the License.
       this.transparentRouting();
     };
 
+    KiRoutes.prototype.renderInitialView = function() {
+      var initialUrl;
+      initialUrl = window.location.pathname;
+      if (this.pushStateSupport) {
+        if (window.location.hash.substring(0, 2) === "#!" && this.find(window.location.hash.substring(2))) {
+          initialUrl = window.location.hash.substring(2);
+        }
+      } else {
+        if (this.hashchangeSupport) {
+          if (window.location.hash.substring(0, 2) === "#!") {
+            initialUrl = window.location.hash.substring(2);
+          }
+        }
+      }
+      this.log("Rendering initial page");
+      this.renderUrl(initialUrl);
+    };
+
+    KiRoutes.prototype.attachLocationChangeListener = function() {
+      var _this = this;
+      if (this.pushStateSupport) {
+        this.addListener(window, "popstate", function(event) {
+          var href;
+          if (_this.updateCount > 0) {
+            href = window.location.pathname;
+            _this.log("Rendering popstate", href);
+            _this.renderUrl(href);
+          }
+        });
+      } else {
+        if (this.hashchangeSupport) {
+          this.addListener(window, "hashchange", function(event) {
+            var href;
+            if (window.location.hash.substring(0, 2) === "#!") {
+              href = window.location.hash.substring(2);
+              _this.log("Rendering hashchange", href);
+              _this.renderUrl(href);
+            }
+          });
+        }
+      }
+    };
+
+    KiRoutes.prototype.renderUrl = function(url) {
+      var ret;
+      if (ret = this.exec(url)) {
+        return ret;
+      } else {
+        if (this.fallbackRoute) {
+          return this.fallbackRoute(url);
+        } else {
+          return this.log("Could not resolve route for", url);
+        }
+      }
+    };
+
     KiRoutes.prototype.attachClickListener = function() {
       var _this = this;
       if (this.pushStateSupport || this.hashchangeSupport) {
@@ -220,16 +282,36 @@ limitations under the License.
     };
 
     KiRoutes.prototype.renderUrlOrRedirect = function(href, event) {
+      var route;
       if (this.checkIfHashBaseUrlRedirectNeeded()) {
         this.log("Using hashbang change to trigger rendering for", href);
         this.disableEventDefault(event);
         window.location.href = this.hashBaseUrl + "#!" + href;
-      } else if (this.exec(href)) {
-        this.log("Rendered", href);
-        this.disableEventDefault(event);
-        this.updateUrl(href);
       } else {
-        this.log("Letting browser render url because no matching route", href);
+        route = this.find(href);
+        if (route == null) {
+          this.log("Letting browser render url because no matching route", href);
+          return;
+        }
+        if (this.disableUrlUpdate || this.pushStateSupport) {
+          this.execRoute(route);
+          this.log("Rendered", href);
+        }
+        this.disableEventDefault(event);
+        if (!this.disableUrlUpdate) {
+          this.updateUrl(href);
+        }
+      }
+    };
+
+    KiRoutes.prototype.updateUrl = function(href) {
+      this.updateCount += 1;
+      if (this.pushStateSupport) {
+        history.pushState({}, document.title, href);
+      } else {
+        if (this.hashchangeSupport) {
+          window.location.hash = "!" + href;
+        }
       }
     };
 
@@ -297,7 +379,7 @@ limitations under the License.
       l = window.location;
       targetUserName = this.fixUsername(aTag.username);
       targetPort = this.fixTargetPort(aTag.port, aTag.protocol);
-      return aTag.hostname === l.hostname && targetPort === l.port && aTag.protocol === l.protocol && targetUserName === l.username && aTag.password === aTag.password;
+      return aTag.hostname === l.hostname && targetPort === l.port && aTag.protocol === l.protocol && targetUserName === this.fixUsername(l.username) && aTag.password === aTag.password;
     };
 
     KiRoutes.prototype.fixUsername = function(username) {
@@ -318,75 +400,6 @@ limitations under the License.
         return "";
       } else {
         return port;
-      }
-    };
-
-    KiRoutes.prototype.attachLocationChangeListener = function() {
-      var _this = this;
-      if (this.pushStateSupport) {
-        this.addListener(window, "popstate", function(event) {
-          var href;
-          if (_this.updateCount > 0) {
-            href = window.location.pathname;
-            _this.log("Rendering popstate", href);
-            _this.renderUrl(href);
-          }
-        });
-      } else {
-        if (this.hashchangeSupport) {
-          this.addListener(window, "hashchange", function(event) {
-            var href;
-            if (window.location.hash.substring(0, 2) === "#!") {
-              href = window.location.hash.substring(2);
-              _this.log("Rendering hashchange", href);
-              _this.renderUrl(href);
-            }
-          });
-        }
-      }
-    };
-
-    KiRoutes.prototype.renderInitialView = function() {
-      var initialUrl;
-      initialUrl = window.location.pathname;
-      if (this.pushStateSupport) {
-        if (window.location.hash.substring(0, 2) === "#!" && this.find(window.location.hash.substring(2))) {
-          initialUrl = window.location.hash.substring(2);
-        }
-      } else {
-        if (this.hashchangeSupport) {
-          if (window.location.hash.substring(0, 2) === "#!") {
-            initialUrl = window.location.hash.substring(2);
-          }
-        }
-      }
-      this.log("Rendering initial page");
-      this.renderUrl(initialUrl);
-    };
-
-    KiRoutes.prototype.renderUrl = function(url) {
-      var ret;
-      if (ret = this.exec(url)) {
-        return ret;
-      } else {
-        if (this.fallbackRoute) {
-          return this.fallbackRoute(url);
-        } else {
-          return this.log("Could not resolve route for", url);
-        }
-      }
-    };
-
-    KiRoutes.prototype.updateUrl = function(href) {
-      this.updateCount += 1;
-      if (!this.disableUrlUpdate) {
-        if (this.pushStateSupport) {
-          history.pushState({}, document.title, href);
-        } else {
-          if (this.hashchangeSupport) {
-            window.location.hash = "!" + href;
-          }
-        }
       }
     };
 

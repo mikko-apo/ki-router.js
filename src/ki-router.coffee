@@ -79,19 +79,22 @@ class KiRoutes
 
   exec: (path) =>
     if matched = @find(path)
-      @log("Found route for", path, " Calling function with params ", matched.params)
-      @renderCount += 1
-      try
-        matched.result = matched.fn(matched.params)
-        for listener in @postExecutionListeners
-          listener(matched, @previous)
-      catch error
-        matched.error = error
-        for exceptionListener in @exceptionListeners
-          exceptionListener(matched, @previous)
-        throw error
-      @previous = matched
-      return matched
+      @execRoute(matched)
+
+  execRoute: (matched) =>
+    @log("Found route for", matched.path, " Calling function with params ", matched.params)
+    @renderCount += 1
+    try
+      matched.result = matched.fn(matched.params)
+      for listener in @postExecutionListeners
+        listener(matched, @previous)
+    catch error
+      matched.error = error
+      for exceptionListener in @exceptionListeners
+        exceptionListener(matched, @previous)
+      throw error
+    @previous = matched
+    return matched
 
   find: (path) =>
     for candidate in @routes
@@ -201,22 +204,25 @@ class KiRoutes
       @log("Using hashbang change to trigger rendering for", href)
       @disableEventDefault(event)
       window.location.href = @hashBaseUrl + "#!" + href
-    else if @exec(href)
-      @log("Rendered", href)
-      @disableEventDefault(event)
-      @updateUrl(href)
     else
-      @log("Letting browser render url because no matching route", href)
+      route = @find(href)
+      unless route?
+        @log("Letting browser render url because no matching route", href)
+        return
+      if @disableUrlUpdate || @pushStateSupport
+        @execRoute(route)
+        @log("Rendered", href)
+      @disableEventDefault(event)
+      @updateUrl(href) unless @disableUrlUpdate
     return
 
   updateUrl: (href) =>
     @updateCount += 1
-    if !@disableUrlUpdate
-      if @pushStateSupport
-        history.pushState({ }, document.title, href)
-      else
-        if @hashchangeSupport
-          window.location.hash = "!" + href
+    if @pushStateSupport
+      history.pushState({ }, document.title, href)
+    else
+      if @hashchangeSupport
+        window.location.hash = "!" + href
     return
 
   checkIfHashBaseUrlRedirectNeeded: () =>
@@ -270,7 +276,7 @@ class KiRoutes
     l = window.location
     targetUserName = @fixUsername(aTag.username)
     targetPort = @fixTargetPort(aTag.port, aTag.protocol)
-    aTag.hostname == l.hostname && targetPort == l.port && aTag.protocol == l.protocol && targetUserName == l.username && aTag.password == aTag.password
+    aTag.hostname == l.hostname && targetPort == l.port && aTag.protocol == l.protocol && targetUserName == @fixUsername(l.username) && aTag.password == aTag.password
 
   fixUsername: (username) =>
     # Firefox 26 sets aTag.username to "", other browsers use undefined
