@@ -94,7 +94,7 @@ describe "KiRouter", ->
       window_open("/index.html", (w) -> w.router.initDone; eq(["/index.html", "1"], [text(w, "#txt"), text(w, "#routerRenderCount")])).
       test()
     it "should handle click to /foo without reloading page", zhain().
-      window_open("/", (w) -> w.router.initDone; eq("No content!", text(w, "#txt"))).
+      window_open("/", (w) -> w.router.initDone; eq("No clicks!", text(w, "#txt"))).
       click("#pageSame", (w) -> eq("Ok!", text(w, "#pageSame"))).
       click("#link_foo", (w) -> eq(["Ok!", "/foo", "1"], [text(w, "#pageSame"), text(w, "#txt"), text(w, "#routerRenderCount")])).
       test()
