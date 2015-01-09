@@ -19,6 +19,7 @@ limitations under the License.
 "use strict"
 
 # Bugs
+# - Allow redirecting to #/ in addition to #!/
 # - IE9, use hashEvent to trigger rendering
 # TODO:
 # - Restore scroll position
@@ -33,6 +34,8 @@ limitations under the License.
 # - test suite
 # - documentation
 # Possible features
+# - support multiple matching routes
+# - router.add() could return a usable object. onError, onValue, ...
 # - regexp special chars should be escaped
 # - clarify when fallbackRoute is used or if it is needed
 # - postExecutionListener gets access to exception during exec
