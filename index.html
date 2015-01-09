@@ -8,88 +8,108 @@
 <h3>README</h3>
 
 This page contains test material for <a href="https://github.com/mikko-apo/ki-router.js">ki-router.js</a>.
-ki-router is configured to catch two urls: /index.html and /foo
+<br>
+ki-router is configured to catch two urls: /index.html and /foo<br>
 
-<h3>Links</h3>
-<a href="/">root /</a>
-<a href="/index.html">index.html</a>
-<a href="/foo" id="link_foo">foo</a>
-<a href="/bar">bar</a>
-
-<h3>Hash links, #</h3>
-<a href="#/">root /</a>
-<a href="#/index.html">index.html</a>
-<a href="#/foo">foo</a>
-<a href="#/bar">bar</a>
-
-<h3>Hashbang links, #!</h3>
-<a href="#!/">root /</a>
-<a href="#!/index.html">index.html</a>
-<a href="#!/foo">foo</a>
-<a href="#!/bar">bar</a>
-
-<h3>Links with target</h3>
-<a href="/index.html" target="_blank">_blank</a>
-<a href="/index.html" target="_parent">_parent</a>
-<a href="/index.html" target="_self">_self</a>
-<a href="/index.html" target="_top">_top</a>
-<a href="/index.html" target="aa">aa</a>
-<a href="/index.html" target="bb">bb</a>
-
-<p id="pageSame" onclick="document.getElementById('pageSame').innerHTML='Ok!'">Click to check we're on same page</p>
-
-<p id="txt">No content!</p>
-
-<h3>Router info</h3>
-
-<table>
+<table cellspacing="0" cellpadding="10" border="1">
     <tr>
-        <td>router.renderCount</td>
-        <td id="routerRenderCount"></td>
+        <td valign="top">
+            When you click these links, router.renderCount should increase
+
+            <h3>Links</h3>
+            <a href="/">root /</a>
+            <a href="/index.html">index.html</a>
+            <a href="/foo" id="link_foo">foo</a>
+            <a href="/bar">bar</a>
+
+            <h3>Hash links, #</h3>
+            <a href="#/">root /</a>
+            <a href="#/index.html">index.html</a>
+            <a href="#/foo">foo</a>
+            <a href="#/bar">bar</a>
+
+            <h3>Hashbang links, #!</h3>
+            <a href="#!/">root /</a>
+            <a href="#!/index.html">index.html</a>
+            <a href="#!/foo">foo</a>
+            <a href="#!/bar">bar</a>
+
+            <h3>Links to /index.html with target.</h3>
+
+            <a href="/index.html" target="_blank">_blank</a>
+            <a href="/index.html" target="_parent">_parent</a>
+            <a href="/index.html" target="_self">_self</a>
+            <a href="/index.html" target="_top">_top</a>
+            <a href="/index.html" target="aa">aa</a>
+            <a href="/index.html" target="bb">bb</a>
+
+            <br>Note: These open up index.html in different windows or current
+
+        </td>
+        <td>
+            <p id="pageSame" onclick="document.getElementById('pageSame').innerHTML='Ok!'">Click to check we're on same page</p>
+
+            Path: <span id="txt">No clicks!</span>
+
+            <h3>Router info</h3>
+
+            <table>
+                <tr>
+                    <td>router.renderCount</td>
+                    <td id="routerRenderCount"></td>
+                </tr>
+            </table>
+
+            <h3>Browser info</h3>
+
+            <h4>Events</h4>
+            <table>
+                <tr>
+                    <th>Event</th>
+                    <th>Support</th>
+                    <th>Value</th>
+                    <th>Count</th>
+                </tr>
+                <tr>
+                    <td>popstate</td>
+                    <td id="popstate"></td>
+                    <td id="popstate.value"></td>
+                    <td id="popstate.count"></td>
+                </tr>
+                <tr>
+                    <td>hashchange</td>
+                    <td id="hashchange"></td>
+                    <td id="hashchange.value"></td>
+                    <td id="hashchange.count"></td>
+                </tr>
+            </table>
+
+            <h4>Browser variables available on start</h4>
+            <table>
+                <tr>
+                    <th>Variable</th>
+                    <th>Available</th>
+                    <th>Value</th>
+                </tr>
+                <tr>
+                    <td>window.history</td>
+                    <td id="window.history"></td>
+                </tr>
+                <tr>
+                    <td>window.history.state</td>
+                    <td id="window.history.state"></td>
+                    <td id="window.history.state.value"></td>
+                </tr>
+                <tr>
+                    <td>window.name</td>
+                    <td id="window.name"></td>
+                </tr>
+            </table>
+
+        </td>
     </tr>
 </table>
 
-<h3>Browser info</h3>
-
-<h4>Events</h4>
-<table>
-    <tr>
-        <th>Event</th>
-        <th>Support</th>
-        <th>Value</th>
-        <th>Count</th>
-    </tr>
-    <tr>
-        <td>popstate</td>
-        <td id="popstate"></td>
-        <td id="popstate.value"></td>
-        <td id="popstate.count"></td>
-    </tr>
-    <tr>
-        <td>hashchange</td>
-        <td id="hashchange"></td>
-        <td id="hashchange.value"></td>
-        <td id="hashchange.count"></td>
-    </tr>
-</table>
-
-<h4>Browser variables available on start</h4>
-<table>
-    <tr>
-        <th>Variable</th>
-        <th>Available</th>
-        <th>Value</th>
-    </tr>
-    <tr>
-        <td>window.history</td>
-        <td id="window.history"></td>
-    </tr>
-    <tr>
-        <td>window.history.state</td>
-        <td id="window.history.state"></td>
-        <td id="window.history.state.value"></td>
-    </tr>
-</table>
 <script type="text/javascript" src="/dist/ki-router.js"></script>
 
 <script>
@@ -109,6 +129,7 @@ ki-router is configured to catch two urls: /index.html and /foo
             setText("window.history.state.value", JSON.stringify(window.history.state));
         }
     }
+    setText("window.name", window.name);
 
     var router = KiRouter.router();
 
