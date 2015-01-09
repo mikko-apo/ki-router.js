@@ -23,7 +23,7 @@ limitations under the License.
 
   KiRouter = {};
 
-  KiRouter.version = '1.1.13';
+  KiRouter.version = '1.1.14';
 
   if (typeof module !== "undefined" && module !== null) {
     module.exports = KiRouter;
@@ -44,10 +44,6 @@ limitations under the License.
   KiRoutes = (function() {
     function KiRoutes() {
       this.addListener = __bind(this.addListener, this);
-      this.updateUrl = __bind(this.updateUrl, this);
-      this.renderUrl = __bind(this.renderUrl, this);
-      this.renderInitialView = __bind(this.renderInitialView, this);
-      this.attachLocationChangeListener = __bind(this.attachLocationChangeListener, this);
       this.fixTargetPort = __bind(this.fixTargetPort, this);
       this.fixUsername = __bind(this.fixUsername, this);
       this.targetHostSame = __bind(this.targetHostSame, this);
@@ -59,8 +55,12 @@ limitations under the License.
       this.disableEventDefault = __bind(this.disableEventDefault, this);
       this.checkIfOkToRender = __bind(this.checkIfOkToRender, this);
       this.checkIfHashBaseUrlRedirectNeeded = __bind(this.checkIfHashBaseUrlRedirectNeeded, this);
+      this.updateUrl = __bind(this.updateUrl, this);
       this.renderUrlOrRedirect = __bind(this.renderUrlOrRedirect, this);
       this.attachClickListener = __bind(this.attachClickListener, this);
+      this.renderUrl = __bind(this.renderUrl, this);
+      this.attachLocationChangeListener = __bind(this.attachLocationChangeListener, this);
+      this.renderInitialView = __bind(this.renderInitialView, this);
       this.hashbangRouting = __bind(this.hashbangRouting, this);
       this.transparentRouting = __bind(this.transparentRouting, this);
       this.historyApiRouting = __bind(this.historyApiRouting, this);
@@ -199,6 +199,62 @@ limitations under the License.
       this.transparentRouting();
     };
 
+    KiRoutes.prototype.renderInitialView = function() {
+      var initialUrl;
+      initialUrl = window.location.pathname;
+      if (this.pushStateSupport) {
+        if (window.location.hash.substring(0, 2) === "#!" && this.find(window.location.hash.substring(2))) {
+          initialUrl = window.location.hash.substring(2);
+        }
+      } else {
+        if (this.hashchangeSupport) {
+          if (window.location.hash.substring(0, 2) === "#!") {
+            initialUrl = window.location.hash.substring(2);
+          }
+        }
+      }
+      this.log("Rendering initial page");
+      this.renderUrl(initialUrl);
+    };
+
+    KiRoutes.prototype.attachLocationChangeListener = function() {
+      var _this = this;
+      if (this.pushStateSupport) {
+        this.addListener(window, "popstate", function(event) {
+          var href;
+          if (_this.updateCount > 0) {
+            href = window.location.pathname;
+            _this.log("Rendering popstate", href);
+            _this.renderUrl(href);
+          }
+        });
+      } else {
+        if (this.hashchangeSupport) {
+          this.addListener(window, "hashchange", function(event) {
+            var href;
+            if (window.location.hash.substring(0, 2) === "#!") {
+              href = window.location.hash.substring(2);
+              _this.log("Rendering hashchange", href);
+              _this.renderUrl(href);
+            }
+          });
+        }
+      }
+    };
+
+    KiRoutes.prototype.renderUrl = function(url) {
+      var ret;
+      if (ret = this.exec(url)) {
+        return ret;
+      } else {
+        if (this.fallbackRoute) {
+          return this.fallbackRoute(url);
+        } else {
+          return this.log("Could not resolve route for", url);
+        }
+      }
+    };
+
     KiRoutes.prototype.attachClickListener = function() {
       var _this = this;
       if (this.pushStateSupport || this.hashchangeSupport) {
@@ -230,6 +286,19 @@ limitations under the License.
         this.updateUrl(href);
       } else {
         this.log("Letting browser render url because no matching route", href);
+      }
+    };
+
+    KiRoutes.prototype.updateUrl = function(href) {
+      this.updateCount += 1;
+      if (!this.disableUrlUpdate) {
+        if (this.pushStateSupport) {
+          history.pushState({}, document.title, href);
+        } else {
+          if (this.hashchangeSupport) {
+            window.location.hash = "!" + href;
+          }
+        }
       }
     };
 
@@ -293,11 +362,10 @@ limitations under the License.
     };
 
     KiRoutes.prototype.targetHostSame = function(aTag) {
-      var l, targetPort, targetUserName;
+      var l, targetPort;
       l = window.location;
-      targetUserName = this.fixUsername(aTag.username);
       targetPort = this.fixTargetPort(aTag.port, aTag.protocol);
-      return aTag.hostname === l.hostname && targetPort === l.port && aTag.protocol === l.protocol && targetUserName === l.username && aTag.password === aTag.password;
+      return aTag.hostname === l.hostname && targetPort === l.port && aTag.protocol === l.protocol && this.fixUsername(aTag.username) === this.fixUsername(l.username) && aTag.password === aTag.password;
     };
 
     KiRoutes.prototype.fixUsername = function(username) {
@@ -318,75 +386,6 @@ limitations under the License.
         return "";
       } else {
         return port;
-      }
-    };
-
-    KiRoutes.prototype.attachLocationChangeListener = function() {
-      var _this = this;
-      if (this.pushStateSupport) {
-        this.addListener(window, "popstate", function(event) {
-          var href;
-          if (_this.updateCount > 0) {
-            href = window.location.pathname;
-            _this.log("Rendering popstate", href);
-            _this.renderUrl(href);
-          }
-        });
-      } else {
-        if (this.hashchangeSupport) {
-          this.addListener(window, "hashchange", function(event) {
-            var href;
-            if (window.location.hash.substring(0, 2) === "#!") {
-              href = window.location.hash.substring(2);
-              _this.log("Rendering hashchange", href);
-              _this.renderUrl(href);
-            }
-          });
-        }
-      }
-    };
-
-    KiRoutes.prototype.renderInitialView = function() {
-      var initialUrl;
-      initialUrl = window.location.pathname;
-      if (this.pushStateSupport) {
-        if (window.location.hash.substring(0, 2) === "#!" && this.find(window.location.hash.substring(2))) {
-          initialUrl = window.location.hash.substring(2);
-        }
-      } else {
-        if (this.hashchangeSupport) {
-          if (window.location.hash.substring(0, 2) === "#!") {
-            initialUrl = window.location.hash.substring(2);
-          }
-        }
-      }
-      this.log("Rendering initial page");
-      this.renderUrl(initialUrl);
-    };
-
-    KiRoutes.prototype.renderUrl = function(url) {
-      var ret;
-      if (ret = this.exec(url)) {
-        return ret;
-      } else {
-        if (this.fallbackRoute) {
-          return this.fallbackRoute(url);
-        } else {
-          return this.log("Could not resolve route for", url);
-        }
-      }
-    };
-
-    KiRoutes.prototype.updateUrl = function(href) {
-      this.updateCount += 1;
-      if (!this.disableUrlUpdate) {
-        if (this.pushStateSupport) {
-          history.pushState({}, document.title, href);
-        } else {
-          if (this.hashchangeSupport) {
-            window.location.hash = "!" + href;
-          }
-        }
       }
     };
 
