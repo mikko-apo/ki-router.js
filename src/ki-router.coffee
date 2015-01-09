@@ -18,7 +18,10 @@ limitations under the License.
 
 "use strict"
 
+# Bugs
+# - IE9, use hashEvent to trigger rendering
 # TODO:
+# - Restore scroll position
 # - Assign multiple routes with one invocation
 # - Ignore hash anchors
 # - Check that bug from Anton
@@ -268,9 +271,8 @@ class KiRoutes
 
   targetHostSame: (aTag) =>
     l = window.location
-    targetUserName = @fixUsername(aTag.username)
     targetPort = @fixTargetPort(aTag.port, aTag.protocol)
-    aTag.hostname == l.hostname && targetPort == l.port && aTag.protocol == l.protocol && targetUserName == l.username && aTag.password == aTag.password
+    aTag.hostname == l.hostname && targetPort == l.port && aTag.protocol == l.protocol && @fixUsername(aTag.username) == @fixUsername(l.username) && aTag.password == aTag.password
 
   fixUsername: (username) =>
     # Firefox 26 sets aTag.username to "", other browsers use undefined
