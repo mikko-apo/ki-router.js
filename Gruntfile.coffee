@@ -1,10 +1,8 @@
-
-
 module.exports = (grunt) ->
   grunt.initConfig
     clean:
       dist: ['dist/']
-      coffee: ['dist/*.coffee']
+      tempFiles: ['dist/*.coffee', 'dist/ki-router.min.js.map']
 
     watch:
       scripts:
@@ -22,13 +20,13 @@ module.exports = (grunt) ->
 
     uglify:
       dist:
-        files: 
+        files:
           'dist/ki-router.min.js': 'dist/ki-router.min.js'
 
-    copy: 
-      dist: 
-        expand:true
-        files:[
+    copy:
+      dist:
+        expand: true
+        files: [
           'dist/ki-router.coffee': 'src/ki-router.coffee'
         ]
 
@@ -59,7 +57,7 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-contrib-connect'
   grunt.loadNpmTasks('grunt-contrib-watch')
 
-  grunt.registerTask 'build', ['clean:dist', 'copy', 'removeAsserts', 'coffee', 'uglify', 'clean:coffee']
+  grunt.registerTask 'build', ['clean:dist', 'copy', 'removeAsserts', 'coffee', 'uglify', 'clean:tempFiles']
   grunt.registerTask 'default', ['build']
 
   grunt.registerTask 'removeAsserts', ->

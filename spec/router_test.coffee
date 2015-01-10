@@ -7,14 +7,14 @@ eq = (a,b) ->
 window.Zhain.prototype.test = (done) ->
   @end (err) -> done(err)
 
-window.Zhain.prototype.trie = trie = (done, attempts, fn) ->
+window.Zhain.prototype.retry = (done, attempts, fn) ->
   try
     fn()
     done()
   catch error
     if attempts == 0
       done(error)
-    callback = -> window.Zhain.prototype.trie(done, attempts-1, fn)
+    callback = -> window.Zhain.prototype.retry(done, attempts-1, fn)
     setTimeout callback, 10
 
 window.Zhain.prototype.window_open = (url, checker) ->
@@ -22,13 +22,13 @@ window.Zhain.prototype.window_open = (url, checker) ->
     w = @w = window.open(url, "test_window")
     if !w
       throw new Error("Could not open pop-up window. Please enable popups.")
-    window.Zhain.prototype.trie(done, 100, -> checker(w))
+    window.Zhain.prototype.retry(done, 100, -> checker(w))
 
 window.Zhain.prototype.click = (selector, checker) ->
   return @do (done) ->
     w = @w
     s(w, selector).click()
-    window.Zhain.prototype.trie(done, 100, -> checker(w))
+    window.Zhain.prototype.retry(done, 100, -> checker(w))
 
 s = (w, selector) ->
   w.document.querySelector(selector)
