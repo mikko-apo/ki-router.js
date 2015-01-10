@@ -231,14 +231,18 @@ router.addExceptionListener(function(matched, previous) {
 
 To run automated tests run following:
 
-    npm install
-    ./grunt connect:http8090 build watch
+```bash
+npm install
+./grunt connect:http8090 build watch
+```
 
 Connect your browser to [http://localhost:8090/spec/test.html](http://localhost:8080/spec/test.html) to run tests.
 
 You can also connect to ports 80 (http), 443 (https), 8090 (http) and 8443 (https)
 
-    ./grunt connect build watch
+```bash
+./grunt connect build watch
+```
 
 # Release History
 * 2015-01-09 1.1.14 Firefox 34 returns window.location.username as "" for unauthenticated users, fixed link comparison handling
