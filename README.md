@@ -126,23 +126,23 @@ router.paramVerifier = function (s) { /^[a-z0-9\/]+$/i.test(s) };
 router.transparentRouting();
 ```
 
-router.add(urlPattern, function, metadata) defines url pattern and a function that is executed if the specific url is used. It is also possible to attach a metadata object to the route that can contain useful information for intercepting the triggered route. This can be for example analytics information.
+`router.add(urlPattern, function, metadata)` defines url pattern and a function that is executed if the specific url is used. It is also possible to attach a metadata object to the route that can contain useful information for intercepting the triggered route. This can be for example analytics information.
 Routes are matched in the order they are defined. The first route that matches the url is invoked. Route patterns may
 include named parameters or wildcard (*) parameters. Named parameters are accessible from the params with _params.name_
 and wildcard parameters are available from _params.splat_. If the url pattern contains multiple instances of named
 parameter, _params.name_ will be a list.
 
-router.fallbackRoute function is executed if there is no matching route. It can be used to render a default page or log an error.
+`router.fallbackRoute` function is executed if there is no matching route. It can be used to render a default page or log an error.
 
-router.hashBaseUrl is used if user accesses the application with a browser that doesn't support history-API, but supports onhashchange.
+`router.hashBaseUrl` is used if user accesses the application with a browser that doesn't support history-API, but supports onhashchange.
 Browser is redirected to that address and application pages are rendered using the hashbang.
 
-router.paramVerifier is a function that can be used to sanitize all the parameters. This is useful if any of the parameters
+`router.paramVerifier` is a function that can be used to sanitize all the parameters. This is useful if any of the parameters
 is used to render HTML. Attacker may otherwise encode HTML in the url that is rendered to the page.
 
 ### Transparent routing
 
-router.transparentRouting() sets up the routing on the browser:
+`router.transparentRouting()` sets up the routing on the browser:
 
 * it registers a click handler for A tags that handles all clicks to known links
 * it registers a listener to handle url back & forward buttons: by using onpopstate or onhashchange
