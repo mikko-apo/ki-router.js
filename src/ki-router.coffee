@@ -19,7 +19,6 @@ limitations under the License.
 "use strict"
 
 # Bugs
-# - Allow redirecting to #/ in addition to #!/
 # - IE9, use hashEvent to trigger rendering
 # TODO:
 # - Restore scroll position
@@ -71,6 +70,7 @@ class KiRoutes
   previous: false
   paramVerifier: false
   renderCount: 0
+  serverSupportsEscapedFragment: false
 
   log: =>
     if @debug && window.console && console && console.log
@@ -147,13 +147,14 @@ class KiRoutes
   # Renders page based on current url
   renderInitialView: =>
     initialUrl = window.location.pathname
+    hashUrl = @getHashUrl()
     if @pushStateSupport
-      if window.location.hash.substring(0, 2) == "#!" && @find(window.location.hash.substring(2))
-        initialUrl = window.location.hash.substring(2)
+      if hashUrl && @find(hashUrl)
+        initialUrl = hashUrl
     else
       if @hashchangeSupport
-        if window.location.hash.substring(0, 2) == "#!"
-          initialUrl = window.location.hash.substring(2)
+        if hashUrl
+          initialUrl = hashUrl
     @log("Rendering initial page")
     @renderUrl(initialUrl)
     return
@@ -170,12 +171,18 @@ class KiRoutes
     else
       if @hashchangeSupport
         @addListener window, "hashchange", (event) =>
-          if window.location.hash.substring(0, 2) == "#!"
-            href = window.location.hash.substring(2)
+          href = @getHashUrl()
+          if href
             @log("Rendering hashchange", href)
             @renderUrl(href)
           return
     return
+
+  getHashUrl: =>
+    if window.location.hash.substring(0, 2) == "#!"
+      window.location.hash.substring(2)
+    else if window.location.hash.substring(0, 1) == "#"
+      window.location.hash.substring(1)
 
   renderUrl: (url) =>
     if ret = @exec(url)
@@ -206,7 +213,7 @@ class KiRoutes
     if @checkIfHashBaseUrlRedirectNeeded()
       @log("Using hashbang change to trigger rendering for", href)
       @disableEventDefault(event)
-      window.location.href = @hashBaseUrl + "#!" + href
+      window.location.href = @hashBaseUrl + "#" + @hashBang() + href
     else if @exec(href)
       @log("Rendered", href)
       @disableEventDefault(event)
@@ -215,6 +222,12 @@ class KiRoutes
       @log("Letting browser render url because no matching route", href)
     return
 
+  hashBang: =>
+    if @serverSupportsEscapedFragment
+      "!"
+    else
+      ""
+
   updateUrl: (href) =>
     @updateCount += 1
     if !@disableUrlUpdate
@@ -222,7 +235,7 @@ class KiRoutes
         history.pushState({ }, document.title, href)
       else
         if @hashchangeSupport
-          window.location.hash = "!" + href
+          window.location.hash = @hashBang() + href
     return
 
   checkIfHashBaseUrlRedirectNeeded: () =>

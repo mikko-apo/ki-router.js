@@ -87,8 +87,9 @@ describe "KiRouter", ->
       catch
       eq(["uups!"], errors)
   describe "browser integration", ->
-    beforeEach ->
+    beforeEach (done) ->
       window.open("about:blank", "test_window")
+      setTimeout done, 10
     it "should render correct view", zhain().
       window_open("/", (w) -> w.router.initDone; eq("No clicks!", text(w, "#txt"))).
       window_open("/index.html", (w) -> w.router.initDone; eq(["/index.html", "1"], [text(w, "#txt"), text(w, "#routerRenderCount")])).
@@ -97,4 +98,10 @@ describe "KiRouter", ->
       window_open("/", (w) -> w.router.initDone; eq("No clicks!", text(w, "#txt"))).
       click("#pageSame", (w) -> eq("Ok!", text(w, "#pageSame"))).
       click("#link_foo", (w) -> eq(["Ok!", "/foo", "1"], [text(w, "#pageSame"), text(w, "#txt"), text(w, "#routerRenderCount")])).
+      test()
+    it "should handle direct link to /#!/foo", zhain().
+      window_open("/#!/foo", (w) -> w.router.initDone; eq(["/foo", "1"], [text(w, "#txt"), text(w, "#routerRenderCount")])).
+      test()
+    it "should handle direct link to /#/foo", zhain().
+      window_open("/#/foo", (w) -> w.router.initDone; eq(["/foo", "1"], [text(w, "#txt"), text(w, "#routerRenderCount")])).
       test()
