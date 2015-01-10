@@ -90,7 +90,7 @@ describe "KiRouter", ->
     beforeEach ->
       window.open("about:blank", "test_window")
     it "should render correct view", zhain().
-      window_open("/", (w) -> w.router.initDone; eq("No content!", text(w, "#txt"))).
+      window_open("/", (w) -> w.router.initDone; eq("No clicks!", text(w, "#txt"))).
       window_open("/index.html", (w) -> w.router.initDone; eq(["/index.html", "1"], [text(w, "#txt"), text(w, "#routerRenderCount")])).
       test()
     it "should handle click to /foo without reloading page", zhain().
