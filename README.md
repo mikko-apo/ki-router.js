@@ -31,18 +31,22 @@ Additional technical features include:
 ki-router.js is good for parsing URL like strings and it works without a browser.
 You can configure any number of urls and functions. For example, like this:
 
-    router = KiRouter.router();
-    router.add("/say/*/to/:name", function (params) { say_hello( params.splat, params.name ) } );
-    router.exec("/say/Hello 123/456/to/world")
+```javascript
+router = KiRouter.router();
+router.add("/say/*/to/:name", function (params) { say_hello( params.splat, params.name ) } );
+router.exec("/say/Hello 123/456/to/world")
+```
 
 You can use ki-router.js to trigger init functions for different views:
 
-    var router = KiRouter.router();
-    router.add("/prelaunch", function (params) { prelaunch.init() } );
-    router.add("/signup", function (params) { signup.init() } );
-    $( document ).ready(function() {
-        router.renderInitialView();
-    });
+```javascript
+var router = KiRouter.router();
+router.add("/prelaunch", function (params) { prelaunch.init() } );
+router.add("/signup", function (params) { signup.init() } );
+$( document ).ready(function() {
+    router.renderInitialView();
+});
+```
 
 For single page apps, ki-router.js supports three kinds modes:
 
@@ -93,28 +97,34 @@ Additional things to consider:
 
 First you'll need a HTML fragment that contains regular a links:
 
-    <p>
-        Main page: <a href="/repository">Repository</a>
-        Component: <a href="/repository/component/ki/demo">ki/demo</a>
-    </p>
+```html
+<p>
+    Main page: <a href="/repository">Repository</a>
+    Component: <a href="/repository/component/ki/demo">ki/demo</a>
+</p>
+```
 
 Then you need to include ki-router.js
 
-    <script type="text/javascript" src="ki-router.js"></script>
+```html
+<script type="text/javascript" src="ki-router.js"></script>
+```
 
 ## Router configuration
 
 Routing configuration defines how different urls are rendered
 
-    router = KiRouter.router();
-    router.add("/repository/component/*", function (params) { show_component( params.splat ) } );
-    router.add("/repository", function (params) { show_components( ) } );
-    router.add("/say/*/to/:name", function (params) { say_hello( params.splat, params.name ) } );
-    router.fallbackRoute = function (url) { alert("Unknown route: " + url) };
-    router.hashBaseUrl = "/repository";
-    router.paramVerifier = function (s) { /^[a-z0-9\/]+$/i.test(s) };
-    // router.debug = true
-    router.transparentRouting();
+```javascript
+router = KiRouter.router();
+router.add("/repository/component/*", function (params) { show_component( params.splat ) } );
+router.add("/repository", function (params) { show_components( ) } );
+router.add("/say/*/to/:name", function (params) { say_hello( params.splat, params.name ) } );
+router.fallbackRoute = function (url) { alert("Unknown route: " + url) };
+router.hashBaseUrl = "/repository";
+router.paramVerifier = function (s) { /^[a-z0-9\/]+$/i.test(s) };
+// router.debug = true
+router.transparentRouting();
+```
 
 router.add(urlPattern, function, metadata) defines url pattern and a function that is executed if the specific url is used. It is also possible to attach a metadata object to the route that can contain useful information for intercepting the triggered route. This can be for example analytics information.
 Routes are matched in the order they are defined. The first route that matches the url is invoked. Route patterns may
@@ -143,25 +153,33 @@ Note:
 To enable bookmarkable urls, you need to configure the backend server with a wildcard url that returns the main page
 for all possible urls. That page should load the router configuration and then router.transparentRouting() renders the correct page.
 
-    get '/*' do
-      erb :repository_page
-    end
+```ruby
+get '/*' do
+  erb :repository_page
+end
+```
 
 ### Hashbang routing
 
-    router.hashbangRouting()
+```javascript
+router.hashbangRouting()
+```
 
 ### HistoryApi routing
 
-    router.historyApiRouting()
+```javascript
+router.historyApiRouting()
+```
 
 ## Route metadata
 
 It's possible to add metadata information to routes. This metadata is available for postExecutionListener and
 it can be used for for example Google Analytics
 
-    router.add("/repository", function (params) { show_components( ) } );
-    router.add("/repository/component/*", function (params) { show_component( params.splat ) }, {ga: "Component"} );
+```javascript
+router.add("/repository", function (params) { show_components( ) } );
+router.add("/repository/component/*", function (params) { show_component( params.splat ) }, {ga: "Component"} );
+```
 
 ## Routing events
 
@@ -169,34 +187,39 @@ it can be used for for example Google Analytics
 
 It is possible to listen for triggered routes by registering an listener function that is valled each time the route has been triggered.
 
-    router.addPostExecutionListener(function(matched, previous) {
-        if( matched.metadata && matched.metadata.ga ) {
-            addAnalyticsEvent(matched.metadata.ga, previous.metadata.ga);
-        }
-    })
+```javascript
+router.addPostExecutionListener(function(matched, previous) {
+    if( matched.metadata && matched.metadata.ga ) {
+        addAnalyticsEvent(matched.metadata.ga, previous.metadata.ga);
+    }
+})
+```
 
 Listener callback gets two parameters that are the route information of the currently triggered route and the previous route.
 
 Matched and previous are hashes, that contain following values:
 
-    {
-        path: "/repository/component/abc",
-        params: {"splat": "abc"},
-        metadata: {"ga": "Component"},
-        result: ...,
-        urlPattern: "/repository/component/*/",
-        route: ...,
-        fn: ...
-    }
+```javascript
+{
+    path: "/repository/component/abc",
+    params: {"splat": "abc"},
+    metadata: {"ga": "Component"},
+    result: ...,
+    urlPattern: "/repository/component/*/",
+    route: ...,
+    fn: ...
+}
+```
 
 ### Exceptions
 
 Ki-router provides a listener mechanism to listen to exceptions. The exception is available from matched.error:
 
-    router.addExceptionListener(function(matched, previous) {
-        console.log(matched.error);
-    })
-
+```javascript
+router.addExceptionListener(function(matched, previous) {
+    console.log(matched.error);
+})
+```
 
 # Install
 
