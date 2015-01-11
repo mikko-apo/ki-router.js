@@ -1,3 +1,4 @@
+
 /*
 
 Copyright 2012-2013 Mikko Apo
@@ -13,8 +14,7 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-*/
-
+ */
 
 (function() {
   "use strict";
@@ -23,7 +23,7 @@ limitations under the License.
 
   KiRouter = {};
 
-  KiRouter.version = '1.1.14';
+  KiRouter.version = '1.1.15';
 
   if (typeof module !== "undefined" && module !== null) {
     module.exports = KiRouter;
@@ -56,9 +56,11 @@ limitations under the License.
       this.checkIfOkToRender = __bind(this.checkIfOkToRender, this);
       this.checkIfHashBaseUrlRedirectNeeded = __bind(this.checkIfHashBaseUrlRedirectNeeded, this);
       this.updateUrl = __bind(this.updateUrl, this);
+      this.hashBang = __bind(this.hashBang, this);
       this.renderUrlOrRedirect = __bind(this.renderUrlOrRedirect, this);
       this.attachClickListener = __bind(this.attachClickListener, this);
       this.renderUrl = __bind(this.renderUrl, this);
+      this.getHashUrl = __bind(this.getHashUrl, this);
       this.attachLocationChangeListener = __bind(this.attachLocationChangeListener, this);
       this.renderInitialView = __bind(this.renderInitialView, this);
       this.hashbangRouting = __bind(this.hashbangRouting, this);
@@ -85,6 +87,8 @@ limitations under the License.
     KiRoutes.prototype.paramVerifier = false;
 
     KiRoutes.prototype.renderCount = 0;
+
+    KiRoutes.prototype.serverSupportsEscapedFragment = false;
 
     KiRoutes.prototype.log = function() {
       if (this.debug && window.console && console && console.log) {
@@ -200,16 +204,17 @@ limitations under the License.
     };
 
     KiRoutes.prototype.renderInitialView = function() {
-      var initialUrl;
+      var hashUrl, initialUrl;
       initialUrl = window.location.pathname;
+      hashUrl = this.getHashUrl();
       if (this.pushStateSupport) {
-        if (window.location.hash.substring(0, 2) === "#!" && this.find(window.location.hash.substring(2))) {
-          initialUrl = window.location.hash.substring(2);
+        if (hashUrl && this.find(hashUrl)) {
+          initialUrl = hashUrl;
         }
       } else {
         if (this.hashchangeSupport) {
-          if (window.location.hash.substring(0, 2) === "#!") {
-            initialUrl = window.location.hash.substring(2);
+          if (hashUrl) {
+            initialUrl = hashUrl;
           }
         }
       }
@@ -218,27 +223,38 @@ limitations under the License.
     };
 
     KiRoutes.prototype.attachLocationChangeListener = function() {
-      var _this = this;
       if (this.pushStateSupport) {
-        this.addListener(window, "popstate", function(event) {
-          var href;
-          if (_this.updateCount > 0) {
-            href = window.location.pathname;
-            _this.log("Rendering popstate", href);
-            _this.renderUrl(href);
-          }
-        });
-      } else {
-        if (this.hashchangeSupport) {
-          this.addListener(window, "hashchange", function(event) {
+        this.addListener(window, "popstate", (function(_this) {
+          return function(event) {
             var href;
-            if (window.location.hash.substring(0, 2) === "#!") {
-              href = window.location.hash.substring(2);
-              _this.log("Rendering hashchange", href);
+            if (_this.updateCount > 0) {
+              href = window.location.pathname;
+              _this.log("Rendering popstate", href);
               _this.renderUrl(href);
             }
-          });
+          };
+        })(this));
+      } else {
+        if (this.hashchangeSupport) {
+          this.addListener(window, "hashchange", (function(_this) {
+            return function(event) {
+              var href;
+              href = _this.getHashUrl();
+              if (href) {
+                _this.log("Rendering hashchange", href);
+                _this.renderUrl(href);
+              }
+            };
+          })(this));
         }
+      }
+    };
+
+    KiRoutes.prototype.getHashUrl = function() {
+      if (window.location.hash.substring(0, 2) === "#!") {
+        return window.location.hash.substring(2);
+      } else if (window.location.hash.substring(0, 1) === "#") {
+        return window.location.hash.substring(1);
       }
     };
 
@@ -256,22 +272,23 @@ limitations under the License.
     };
 
     KiRoutes.prototype.attachClickListener = function() {
-      var _this = this;
       if (this.pushStateSupport || this.hashchangeSupport) {
-        this.addListener(document, "click", function(event) {
-          var aTag, href, target;
-          event = event || window.event;
-          target = event.target || event.srcElement;
-          if (target) {
-            _this.log("Checking if click event should be rendered");
-            aTag = _this.findATag(target);
-            if (_this.checkIfOkToRender(event, aTag)) {
-              href = aTag.attributes.href.nodeValue;
-              _this.log("Click event passed all checks");
-              _this.renderUrlOrRedirect(href, event);
+        this.addListener(document, "click", (function(_this) {
+          return function(event) {
+            var aTag, href, target;
+            event = event || window.event;
+            target = event.target || event.srcElement;
+            if (target) {
+              _this.log("Checking if click event should be rendered");
+              aTag = _this.findATag(target);
+              if (_this.checkIfOkToRender(event, aTag)) {
+                href = aTag.attributes.href.nodeValue;
+                _this.log("Click event passed all checks");
+                _this.renderUrlOrRedirect(href, event);
+              }
             }
-          }
-        });
+          };
+        })(this));
       }
     };
 
@@ -279,13 +296,21 @@ limitations under the License.
       if (this.checkIfHashBaseUrlRedirectNeeded()) {
         this.log("Using hashbang change to trigger rendering for", href);
         this.disableEventDefault(event);
-        window.location.href = this.hashBaseUrl + "#!" + href;
+        window.location.href = this.hashBaseUrl + "#" + this.hashBang() + href;
       } else if (this.exec(href)) {
         this.log("Rendered", href);
         this.disableEventDefault(event);
         this.updateUrl(href);
       } else {
         this.log("Letting browser render url because no matching route", href);
+      }
+    };
+
+    KiRoutes.prototype.hashBang = function() {
+      if (this.serverSupportsEscapedFragment) {
+        return "!";
+      } else {
+        return "";
       }
     };
 
@@ -296,7 +321,7 @@ limitations under the License.
           history.pushState({}, document.title, href);
         } else {
           if (this.hashchangeSupport) {
-            window.location.hash = "!" + href;
+            window.location.hash = this.hashBang() + href;
           }
         }
       }
