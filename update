@@ -1,6 +1,9 @@
 #!/usr/bin/env bash -e
 
-git checkout master -- dist
-git checkout master -- spec
-git checkout master -- index.html
+rm -rf node_modules dist spec index.html
+git checkout origin/master -- dist
+git checkout origin/master -- spec
+git checkout origin/master -- index.html
+rm -rf */*.coffee
 npm install
+

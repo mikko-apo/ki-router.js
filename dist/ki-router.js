@@ -1,3 +1,4 @@
+
 /*
 
 Copyright 2012-2013 Mikko Apo
@@ -13,24 +14,27 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-*/
-
+ */
 
 (function() {
   "use strict";
   var KiRouter, KiRoutes, SinatraRouteParser,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
+  KiRouter = {};
+
+  KiRouter.version = '1.1.16';
+
   if (typeof module !== "undefined" && module !== null) {
-    module.exports = KiRouter = {};
+    module.exports = KiRouter;
     KiRouter.KiRouter = KiRouter;
   } else {
     if ((typeof define !== "undefined" && define !== null) && (define.amd != null)) {
-      define((function() {
+      define([], function() {
         return KiRouter;
-      }));
+      });
     }
-    this.KiRouter = KiRouter = {};
+    this.KiRouter = KiRouter;
   }
 
   KiRouter.router = function() {
@@ -40,17 +44,31 @@ limitations under the License.
   KiRoutes = (function() {
     function KiRoutes() {
       this.addListener = __bind(this.addListener, this);
-      this.updateUrl = __bind(this.updateUrl, this);
-      this.renderUrl = __bind(this.renderUrl, this);
-      this.renderInitialView = __bind(this.renderInitialView, this);
-      this.attachLocationChangeListener = __bind(this.attachLocationChangeListener, this);
+      this.fixTargetPort = __bind(this.fixTargetPort, this);
+      this.fixUsername = __bind(this.fixUsername, this);
       this.targetHostSame = __bind(this.targetHostSame, this);
       this.targetAttributeIsCurrentWindow = __bind(this.targetAttributeIsCurrentWindow, this);
       this.metakeyPressed = __bind(this.metakeyPressed, this);
       this.findATag = __bind(this.findATag, this);
       this.leftMouseButton = __bind(this.leftMouseButton, this);
+      this.blog = __bind(this.blog, this);
+      this.disableEventDefault = __bind(this.disableEventDefault, this);
+      this.checkIfOkToRender = __bind(this.checkIfOkToRender, this);
+      this.checkIfHashBaseUrlRedirectNeeded = __bind(this.checkIfHashBaseUrlRedirectNeeded, this);
+      this.updateUrl = __bind(this.updateUrl, this);
+      this.hashBang = __bind(this.hashBang, this);
+      this.renderUrlOrRedirect = __bind(this.renderUrlOrRedirect, this);
+      this.nValue = __bind(this.nValue, this);
       this.attachClickListener = __bind(this.attachClickListener, this);
-      this.initRouting = __bind(this.initRouting, this);
+      this.renderUrl = __bind(this.renderUrl, this);
+      this.getHashUrl = __bind(this.getHashUrl, this);
+      this.attachLocationChangeListener = __bind(this.attachLocationChangeListener, this);
+      this.renderInitialView = __bind(this.renderInitialView, this);
+      this.hashbangRouting = __bind(this.hashbangRouting, this);
+      this.transparentRouting = __bind(this.transparentRouting, this);
+      this.historyApiRouting = __bind(this.historyApiRouting, this);
+      this.addExceptionListener = __bind(this.addExceptionListener, this);
+      this.addPostExecutionListener = __bind(this.addPostExecutionListener, this);
       this.find = __bind(this.find, this);
       this.exec = __bind(this.exec, this);
       this.add = __bind(this.add, this);
@@ -59,28 +77,63 @@ limitations under the License.
 
     KiRoutes.prototype.routes = [];
 
+    KiRoutes.prototype.postExecutionListeners = [];
+
+    KiRoutes.prototype.exceptionListeners = [];
+
     KiRoutes.prototype.debug = false;
 
+    KiRoutes.prototype.previous = false;
+
+    KiRoutes.prototype.paramVerifier = false;
+
+    KiRoutes.prototype.renderCount = 0;
+
+    KiRoutes.prototype.serverSupportsEscapedFragment = false;
+
     KiRoutes.prototype.log = function() {
-      if (this.debug) {
-        return console.log.apply(this, arguments);
+      if (this.debug && window.console && console && console.log) {
+        if (JSON.stringify) {
+          console.log("ki-router: " + JSON.stringify(arguments));
+        } else {
+          console.log(arguments);
+        }
       }
     };
 
-    KiRoutes.prototype.add = function(urlPattern, fn) {
+    KiRoutes.prototype.add = function(urlPattern, fn, metadata) {
       return this.routes.push({
         route: new SinatraRouteParser(urlPattern),
         fn: fn,
-        urlPattern: urlPattern
+        urlPattern: urlPattern,
+        metadata: metadata
       });
     };
 
     KiRoutes.prototype.exec = function(path) {
-      var matchedRoute;
-      if (matchedRoute = this.find(path)) {
-        this.log("Found route for", path, " Calling function with params ", matchedRoute.params);
-        matchedRoute.result = matchedRoute.fn(matchedRoute.params);
-        return matchedRoute;
+      var error, exceptionListener, listener, matched, _i, _j, _len, _len1, _ref, _ref1;
+      if (matched = this.find(path)) {
+        this.log("Found route for", path, " Calling function with params ", matched.params);
+        this.renderCount += 1;
+        try {
+          matched.result = matched.fn(matched.params);
+          _ref = this.postExecutionListeners;
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            listener = _ref[_i];
+            listener(matched, this.previous);
+          }
+        } catch (_error) {
+          error = _error;
+          matched.error = error;
+          _ref1 = this.exceptionListeners;
+          for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+            exceptionListener = _ref1[_j];
+            exceptionListener(matched, this.previous);
+          }
+          throw error;
+        }
+        this.previous = matched;
+        return matched;
       }
     };
 
@@ -94,10 +147,20 @@ limitations under the License.
             params: params,
             route: candidate.matchedRoute,
             fn: candidate.fn,
-            urlPattern: candidate.urlPattern
+            urlPattern: candidate.urlPattern,
+            path: path,
+            metadata: candidate.metadata
           };
         }
       }
+    };
+
+    KiRoutes.prototype.addPostExecutionListener = function(fn) {
+      return this.postExecutionListeners.push(fn);
+    };
+
+    KiRoutes.prototype.addExceptionListener = function(fn) {
+      return this.exceptionListeners.push(fn);
     };
 
     KiRoutes.prototype.pushStateSupport = history && history.pushState;
@@ -106,48 +169,194 @@ limitations under the License.
 
     KiRoutes.prototype.hashBaseUrl = false;
 
-    KiRoutes.prototype.previousView = false;
-
     KiRoutes.prototype.disableUrlUpdate = false;
 
     KiRoutes.prototype.fallbackRoute = false;
 
     KiRoutes.prototype.init = false;
 
-    KiRoutes.prototype.paramVerifier = false;
+    KiRoutes.prototype.initDone = false;
 
-    KiRoutes.prototype.initRouting = function() {
+    KiRoutes.prototype.updateCount = 0;
+
+    KiRoutes.prototype.historyApiRouting = function() {
+      this.hashchangeSupport = false;
+      this.transparentRouting();
+    };
+
+    KiRoutes.prototype.transparentRouting = function() {
       this.init = true;
       try {
         this.attachClickListener();
         this.attachLocationChangeListener();
-        return this.renderInitialView();
+        this.renderInitialView();
       } finally {
         this.init = false;
+        this.initDone = true;
+      }
+    };
+
+    KiRoutes.prototype.hashbangRouting = function() {
+      this.pushStateSupport = false;
+      if (!this.hashchangeSupport) {
+        throw new Error("No hashchange support!");
+      }
+      this.transparentRouting();
+    };
+
+    KiRoutes.prototype.renderInitialView = function() {
+      var hashUrl, initialUrl;
+      initialUrl = window.location.pathname;
+      hashUrl = this.getHashUrl();
+      if (this.pushStateSupport) {
+        if (hashUrl && this.find(hashUrl)) {
+          initialUrl = hashUrl;
+        }
+      } else {
+        if (this.hashchangeSupport) {
+          if (hashUrl) {
+            initialUrl = hashUrl;
+          }
+        }
+      }
+      this.log("Rendering initial page");
+      this.renderUrl(initialUrl);
+    };
+
+    KiRoutes.prototype.attachLocationChangeListener = function() {
+      if (this.pushStateSupport) {
+        this.addListener(window, "popstate", (function(_this) {
+          return function(event) {
+            var href;
+            if (_this.updateCount > 0) {
+              href = window.location.pathname;
+              _this.log("Rendering popstate", href);
+              _this.renderUrl(href);
+            }
+          };
+        })(this));
+      } else {
+        if (this.hashchangeSupport) {
+          this.addListener(window, "hashchange", (function(_this) {
+            return function(event) {
+              var href;
+              href = _this.getHashUrl();
+              if (href) {
+                _this.log("Rendering hashchange", href);
+                _this.renderUrl(href);
+              }
+            };
+          })(this));
+        }
+      }
+    };
+
+    KiRoutes.prototype.getHashUrl = function() {
+      if (window.location.hash.substring(0, 2) === "#!") {
+        return window.location.hash.substring(2);
+      } else if (window.location.hash.substring(0, 1) === "#") {
+        return window.location.hash.substring(1);
+      }
+    };
+
+    KiRoutes.prototype.renderUrl = function(url) {
+      var ret;
+      if (ret = this.exec(url)) {
+        return ret;
+      } else {
+        if (this.fallbackRoute) {
+          return this.fallbackRoute(url);
+        } else {
+          return this.log("Could not resolve route for", url);
+        }
       }
     };
 
     KiRoutes.prototype.attachClickListener = function() {
-      var _this = this;
       if (this.pushStateSupport || this.hashchangeSupport) {
-        return this.addListener(document, "click", function(event) {
-          var aTag, href, target;
-          target = event.target;
-          if (target) {
-            aTag = _this.findATag(target);
-            if (aTag && _this.leftMouseButton(event) && !_this.metakeyPressed(event) && _this.targetAttributeIsCurrentWindow(aTag) && _this.targetHostSame(aTag)) {
-              href = aTag.attributes.href.nodeValue;
-              _this.log("Processing click", href);
-              if (_this.exec(href)) {
-                _this.log("New url", href);
-                event.preventDefault();
-                _this.previousView = href;
-                return _this.updateUrl(href);
+        this.addListener(document, "click", (function(_this) {
+          return function(event) {
+            var aTag, href, target;
+            event = event || window.event;
+            target = event.target || event.srcElement;
+            if (target) {
+              _this.log("Checking if click event should be rendered");
+              aTag = _this.findATag(target);
+              if (_this.checkIfOkToRender(event, aTag)) {
+                href = _this.nValue(aTag.attributes.href);
+                _this.log("Click event passed all checks");
+                _this.renderUrlOrRedirect(href, event);
               }
             }
-          }
-        });
+          };
+        })(this));
       }
+    };
+
+    KiRoutes.prototype.nValue = function(node) {
+      if (node.value != null) {
+        return node.value;
+      } else {
+        return node.nodeValue;
+      }
+    };
+
+    KiRoutes.prototype.renderUrlOrRedirect = function(href, event) {
+      if (this.checkIfHashBaseUrlRedirectNeeded()) {
+        this.log("Using hashbang change to trigger rendering for", href);
+        this.disableEventDefault(event);
+        window.location.href = this.hashBaseUrl + "#" + this.hashBang() + href;
+      } else if (this.exec(href)) {
+        this.log("Rendered", href);
+        this.disableEventDefault(event);
+        this.updateUrl(href);
+      } else {
+        this.log("Letting browser render url because no matching route", href);
+      }
+    };
+
+    KiRoutes.prototype.hashBang = function() {
+      if (this.serverSupportsEscapedFragment) {
+        return "!";
+      } else {
+        return "";
+      }
+    };
+
+    KiRoutes.prototype.updateUrl = function(href) {
+      this.updateCount += 1;
+      if (!this.disableUrlUpdate) {
+        if (this.pushStateSupport) {
+          history.pushState({}, document.title, href);
+        } else {
+          if (this.hashchangeSupport) {
+            window.location.hash = this.hashBang() + href;
+          }
+        }
+      }
+    };
+
+    KiRoutes.prototype.checkIfHashBaseUrlRedirectNeeded = function() {
+      return !this.pushStateSupport && this.hashchangeSupport && this.hashBaseUrl && this.hashBaseUrl !== window.location.pathname;
+    };
+
+    KiRoutes.prototype.checkIfOkToRender = function(event, aTag) {
+      return this.blog("- A tag", aTag) && this.blog("- Left mouse button click", this.leftMouseButton(event)) && this.blog("- Not meta keys pressed", !this.metakeyPressed(event)) && this.blog("- Target attribute is current window", this.targetAttributeIsCurrentWindow(aTag)) && this.blog("- Link host same as current window", this.targetHostSame(aTag));
+    };
+
+    KiRoutes.prototype.disableEventDefault = function(ev) {
+      if (ev) {
+        if (ev.preventDefault) {
+          ev.preventDefault();
+        } else {
+          ev.returnValue = false;
+        }
+      }
+    };
+
+    KiRoutes.prototype.blog = function(str, v) {
+      this.log(str + ", result: " + v);
+      return v;
     };
 
     KiRoutes.prototype.leftMouseButton = function(event) {
@@ -161,7 +370,7 @@ limitations under the License.
         }
         target = target.parentElement;
       }
-      return null;
+      return false;
     };
 
     KiRoutes.prototype.metakeyPressed = function(event) {
@@ -173,7 +382,7 @@ limitations under the License.
       if (!aTag.attributes.target) {
         return true;
       }
-      val = aTag.attributes.target.nodeValue;
+      val = this.nValue(aTag.attributes.target);
       if (["_blank", "_parent"].indexOf(val) !== -1) {
         return false;
       }
@@ -187,92 +396,30 @@ limitations under the License.
     };
 
     KiRoutes.prototype.targetHostSame = function(aTag) {
-      var l;
+      var l, targetPort;
       l = window.location;
-      return aTag.host === l.host && aTag.protocol === l.protocol && aTag.username === l.username && aTag.password === aTag.password;
+      targetPort = this.fixTargetPort(aTag.port, aTag.protocol);
+      return aTag.hostname === l.hostname && targetPort === l.port && aTag.protocol === l.protocol && this.fixUsername(aTag.username) === this.fixUsername(l.username) && aTag.password === aTag.password;
     };
 
-    KiRoutes.prototype.attachLocationChangeListener = function() {
-      var _this = this;
-      if (this.pushStateSupport) {
-        return this.addListener(window, "popstate", function(event) {
-          var href;
-          href = window.location.pathname;
-          _this.log("Rendering onpopstate", href);
-          return _this.renderUrl(href);
-        });
+    KiRoutes.prototype.fixUsername = function(username) {
+      if (username === "") {
+        return void 0;
       } else {
-        if (this.hashchangeSupport) {
-          return this.addListener(window, "hashchange", function(event) {
-            var href;
-            if (window.location.hash.substring(0, 2) === "#!") {
-              href = window.location.hash.substring(2);
-              if (href !== _this.previousView) {
-                _this.log("Rendering onhashchange", href);
-                return _this.renderUrl(href);
-              }
-            }
-          });
-        }
+        return username;
       }
     };
 
-    KiRoutes.prototype.renderInitialView = function() {
-      var forceUrlUpdate, initialUrl;
-      this.log("Rendering initial page");
-      initialUrl = window.location.pathname;
-      forceUrlUpdate = false;
-      if (this.pushStateSupport) {
-        if (window.location.hash.substring(0, 2) === "#!" && this.find(window.location.hash.substring(2))) {
-          forceUrlUpdate = initialUrl = window.location.hash.substring(2);
-        }
+    KiRoutes.prototype.fixTargetPort = function(port, protocol) {
+      var protocolPorts;
+      protocolPorts = {
+        "http:": "80",
+        "https:": "443"
+      };
+      if (port !== "" && port === protocolPorts[protocol]) {
+        return "";
       } else {
-        if (this.hashchangeSupport) {
-          if (window.location.hash === "" && this.find(initialUrl)) {
-            if (this.hashBaseUrl && this.hashBaseUrl !== initialUrl) {
-              window.location.href = this.hashBaseUrl + "#!" + initialUrl;
-            } else {
-              window.location.hash = "!" + initialUrl;
-            }
-          }
-          if (window.location.hash.substring(0, 2) === "#!") {
-            initialUrl = window.location.hash.substring(2);
-          }
-        }
-      }
-      this.renderUrl(initialUrl);
-      if (forceUrlUpdate) {
-        return this.updateUrl(forceUrlUpdate);
-      }
-    };
-
-    KiRoutes.prototype.renderUrl = function(url) {
-      var err, ret;
-      try {
-        if (ret = this.exec(url)) {
-          return ret;
-        } else {
-          if (this.fallbackRoute) {
-            return this.fallbackRoute(url);
-          } else {
-            return this.log("Could not resolve route for", url);
-          }
-        }
-      } catch (_error) {
-        err = _error;
-        return this.log("Could not resolve route for", url, " exception", err);
-      }
-    };
-
-    KiRoutes.prototype.updateUrl = function(href) {
-      if (!this.disableUrlUpdate) {
-        if (this.pushStateSupport) {
-          return history.pushState({}, document.title, href);
-        } else {
-          if (this.hashchangeSupport) {
-            return window.location.hash = "!" + href;
-          }
-        }
+        return port;
       }
     };
 
@@ -282,7 +429,7 @@ limitations under the License.
       } else if (element.attachEvent) {
         return element.attachEvent("on" + event, fn);
       } else {
-        return raise("addListener can not attach listeners!");
+        throw new Error("addListener can not attach listeners!");
       }
     };
 
@@ -293,26 +440,28 @@ limitations under the License.
   SinatraRouteParser = (function() {
     function SinatraRouteParser(route) {
       this.parse = __bind(this.parse, this);
-      var pattern, segments,
-        _this = this;
+      var firstMatch, match, pattern, routeItems, segment, segments, _i, _len;
       this.keys = [];
       route = route.substring(1);
-      segments = route.split("/").map(function(segment) {
-        var firstMatch, match;
+      segments = [];
+      routeItems = route.split("/");
+      for (_i = 0, _len = routeItems.length; _i < _len; _i++) {
+        segment = routeItems[_i];
         match = segment.match(/((:\w+)|\*)/);
         if (match) {
           firstMatch = match[0];
           if (firstMatch === "*") {
-            _this.keys.push("splat");
-            return "(.*)";
+            this.keys.push("splat");
+            segment = "(.*)";
           } else {
-            _this.keys.push(firstMatch.substring(1));
-            return "([^\/?#]+)";
+            this.keys.push(firstMatch.substring(1));
+            segment = "([^\/?#]+)";
           }
         } else {
-          return segment;
+          segment = segment.replace(".", "\\.");
         }
-      });
+        segments.push(segment);
+      }
       pattern = "^/" + segments.join("/") + "$";
       this.pattern = new RegExp(pattern);
     }
@@ -327,7 +476,7 @@ limitations under the License.
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           match = _ref[_i];
           if (paramVerify && !paramVerify(match)) {
-            return null;
+            return false;
           }
           key = this.keys[i];
           i += 1;
