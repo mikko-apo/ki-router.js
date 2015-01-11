@@ -26,6 +26,8 @@ Additional technical features include:
 * Simple integration with other javascript frameworks. Attaches listeners to document level, does not interfere with events handled by application's javascript
 * No dependencies on other javascript libraries
 
+Check out the demo at http://ki-router.ki-flow.org/
+
 # Five ways to use ki-router.js
 
 ki-router.js is good for parsing URL like strings and it works without a browser.
