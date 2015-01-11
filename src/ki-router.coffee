@@ -203,11 +203,17 @@ class KiRoutes
           @log("Checking if click event should be rendered")
           aTag = @findATag(target)
           if @checkIfOkToRender(event, aTag)
-            href = aTag.attributes.href.nodeValue
+            href = @nValue(aTag.attributes.href)
             @log("Click event passed all checks")
             @renderUrlOrRedirect(href, event)
         return
     return
+
+  nValue: (node) =>
+    if node.value?
+      node.value
+    else
+      node.nodeValue
 
   renderUrlOrRedirect: (href, event) =>
     if @checkIfHashBaseUrlRedirectNeeded()
@@ -276,7 +282,7 @@ class KiRoutes
   targetAttributeIsCurrentWindow: (aTag) =>
     if !aTag.attributes.target
       return true
-    val = aTag.attributes.target.nodeValue
+    val = @nValue(aTag.attributes.target)
     if ["_blank", "_parent"].indexOf(val) != -1
       return false
     if val == "_self"

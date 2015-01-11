@@ -245,6 +245,7 @@ You can also connect to ports 80 (http), 443 (https), 8090 (http) and 8443 (http
 ```
 
 # Release History
+* 2015-01-11 1.1.16 Fixed warning message for Chrome: 'Attr.nodeValue' is deprecated. Please use 'value' instead. (thanks santtul) https://github.com/mikko-apo/ki-router.js/issues/3
 * 2015-01-11 1.1.15 Defaults to redirecting to #/ instead of #!/. Handles both #/ and #!/ links. ki-router published to https://www.npmjs.com/ also.
 * 2015-01-09 1.1.14 Firefox 34 returns window.location.username as "" for unauthenticated users, fixed link comparison handling
 * 2014-03-27 1.1.13 Fixed attachLocationChangeListener popstate to work when ki-router.js is used without clicksupport (thanks antris)
