@@ -225,6 +225,7 @@ router.addExceptionListener(function(matched, previous) {
 
 # Install
 
+* Npm: npm install --save ki-router
 * Bower: bower install --save ki-router
 * Coffeescript (original source): [src/ki-router.coffee](https://raw.github.com/mikko-apo/ki-router.js/master/src/ki-router.coffee)
 * Javascript: [dist/ki-router.js](https://raw.github.com/mikko-apo/ki-router.js/master/dist/ki-router.js)
@@ -247,6 +248,7 @@ You can also connect to ports 80 (http), 443 (https), 8090 (http) and 8443 (http
 ```
 
 # Release History
+* 2015-01-12 1.1.17 Renamed npm package to ki-router, no changes to 1.1.16
 * 2015-01-11 1.1.16 Fixed warning message for Chrome: 'Attr.nodeValue' is deprecated. Please use 'value' instead. (thanks santtul) https://github.com/mikko-apo/ki-router.js/issues/3
 * 2015-01-11 1.1.15 Defaults to redirecting to #/ instead of #!/. Handles both #/ and #!/ links. ki-router published to https://www.npmjs.com/ also.
 * 2015-01-09 1.1.14 Firefox 34 returns window.location.username as "" for unauthenticated users, fixed link comparison handling
