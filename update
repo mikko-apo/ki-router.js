@@ -1,0 +1,6 @@
+#!/usr/bin/env bash -e
+
+git checkout master -- dist
+git checkout master -- spec
+git checkout master -- index.html
+npm install
