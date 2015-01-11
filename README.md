@@ -245,7 +245,7 @@ You can also connect to ports 80 (http), 443 (https), 8090 (http) and 8443 (http
 ```
 
 # Release History
-* Next release: Defaults to redirecting to #/ instead of #!/. Handles both #/ and #!/ links.
+* 2015-01-11 1.1.15 Defaults to redirecting to #/ instead of #!/. Handles both #/ and #!/ links. ki-router published to https://www.npmjs.com/ also.
 * 2015-01-09 1.1.14 Firefox 34 returns window.location.username as "" for unauthenticated users, fixed link comparison handling
 * 2014-03-27 1.1.13 Fixed attachLocationChangeListener popstate to work when ki-router.js is used without clicksupport (thanks antris)
 * 2014-03-18 1.1.12 Removed harmful try catch that hid errors (thanks raimohanska). Testing reports if popups are blocked (thanks tkurki)
