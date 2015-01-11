@@ -23,7 +23,7 @@ limitations under the License.
 
   KiRouter = {};
 
-  KiRouter.version = '1.1.15';
+  KiRouter.version = '1.1.16';
 
   if (typeof module !== "undefined" && module !== null) {
     module.exports = KiRouter;
@@ -58,6 +58,7 @@ limitations under the License.
       this.updateUrl = __bind(this.updateUrl, this);
       this.hashBang = __bind(this.hashBang, this);
       this.renderUrlOrRedirect = __bind(this.renderUrlOrRedirect, this);
+      this.nValue = __bind(this.nValue, this);
       this.attachClickListener = __bind(this.attachClickListener, this);
       this.renderUrl = __bind(this.renderUrl, this);
       this.getHashUrl = __bind(this.getHashUrl, this);
@@ -282,13 +283,21 @@ limitations under the License.
               _this.log("Checking if click event should be rendered");
               aTag = _this.findATag(target);
               if (_this.checkIfOkToRender(event, aTag)) {
-                href = aTag.attributes.href.nodeValue;
+                href = _this.nValue(aTag.attributes.href);
                 _this.log("Click event passed all checks");
                 _this.renderUrlOrRedirect(href, event);
               }
             }
           };
         })(this));
+      }
+    };
+
+    KiRoutes.prototype.nValue = function(node) {
+      if (node.value != null) {
+        return node.value;
+      } else {
+        return node.nodeValue;
       }
     };
 
@@ -373,7 +382,7 @@ limitations under the License.
       if (!aTag.attributes.target) {
         return true;
       }
-      val = aTag.attributes.target.nodeValue;
+      val = this.nValue(aTag.attributes.target);
       if (["_blank", "_parent"].indexOf(val) !== -1) {
         return false;
       }
