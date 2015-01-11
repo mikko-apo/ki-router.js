@@ -23,7 +23,7 @@ limitations under the License.
 
   KiRouter = {};
 
-  KiRouter.version = '1.1.16';
+  KiRouter.version = '1.1.17';
 
   if (typeof module !== "undefined" && module !== null) {
     module.exports = KiRouter;
