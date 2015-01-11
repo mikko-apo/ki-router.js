@@ -28,6 +28,13 @@ Additional technical features include:
 
 Check out the demo at http://ki-router.ki-flow.org/
 
+# Install
+
+* Npm: npm install --save ki-router
+* Bower: bower install --save ki-router
+* Coffeescript (original source): [src/ki-router.coffee](https://raw.github.com/mikko-apo/ki-router.js/master/src/ki-router.coffee)
+* Javascript: [dist/ki-router.js](https://raw.github.com/mikko-apo/ki-router.js/master/dist/ki-router.js)
+
 # Five ways to use ki-router.js
 
 ki-router.js is good for parsing URL like strings and it works without a browser.
@@ -222,13 +229,6 @@ router.addExceptionListener(function(matched, previous) {
     console.log(matched.error);
 })
 ```
-
-# Install
-
-* Npm: npm install --save ki-router
-* Bower: bower install --save ki-router
-* Coffeescript (original source): [src/ki-router.coffee](https://raw.github.com/mikko-apo/ki-router.js/master/src/ki-router.coffee)
-* Javascript: [dist/ki-router.js](https://raw.github.com/mikko-apo/ki-router.js/master/dist/ki-router.js)
 
 # Development
 
