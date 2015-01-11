@@ -30,11 +30,20 @@ window.Zhain.prototype.click = (selector, checker) ->
     s(w, selector).click()
     window.Zhain.prototype.retry(done, 100, -> checker(w))
 
+window.Zhain.prototype.back = (checker) ->
+  return @do (done) ->
+    w = @w
+    w.history.back()
+    window.Zhain.prototype.retry(done, 100, -> checker(w))
+
 s = (w, selector) ->
   w.document.querySelector(selector)
 
 text = (w, selector) ->
   s(w, selector).innerHTML
+
+url = (w) ->
+  w.location.pathname + w.location.hash
 
 describe "KiRouter", ->
   describe "should execute operation based on matched matchedRoute", ->
@@ -91,17 +100,24 @@ describe "KiRouter", ->
       window.open("about:blank", "test_window")
       setTimeout done, 10
     it "should render correct view", zhain().
-      window_open("/", (w) -> w.router.initDone; eq("No clicks!", text(w, "#txt"))).
+      window_open("/", (w) -> w.router.initDone; eq(["No clicks!",""], [text(w, "#txt"), text(w, "#routerRenderCount")])).
       window_open("/index.html", (w) -> w.router.initDone; eq(["/index.html", "1"], [text(w, "#txt"), text(w, "#routerRenderCount")])).
       test()
     it "should handle click to /foo without reloading page", zhain().
       window_open("/", (w) -> w.router.initDone; eq("No clicks!", text(w, "#txt"))).
       click("#pageSame", (w) -> eq("Ok!", text(w, "#pageSame"))).
       click("#link_foo", (w) -> eq(["Ok!", "/foo", "1"], [text(w, "#pageSame"), text(w, "#txt"), text(w, "#routerRenderCount")])).
+      click("#link_index", (w) -> eq(["Ok!","/index.html","2"], [text(w, "#pageSame"), text(w, "#txt"), text(w, "#routerRenderCount")])).
+      click("#link_foo", (w) -> eq(["Ok!", "/foo", "3"], [text(w, "#pageSame"), text(w, "#txt"), text(w, "#routerRenderCount")])).
+      back((w) -> eq(["Ok!","/index.html","4"], [text(w, "#pageSame"), text(w, "#txt"), text(w, "#routerRenderCount")])).
       test()
     it "should handle direct link to /#!/foo", zhain().
-      window_open("/#!/foo", (w) -> w.router.initDone; eq(["/foo", "1"], [text(w, "#txt"), text(w, "#routerRenderCount")])).
+      window_open("/#!/foo", (w) -> w.router.initDone; eq(["/#!/foo", "/foo", "1"], [url(w), text(w, "#txt"), text(w, "#routerRenderCount")])).
+      click("#pageSame", (w) -> eq("Ok!", text(w, "#pageSame"))).
+      click("#link_foo", (w) -> eq(["/foo", "Ok!", "/foo", "2"], [url(w), text(w, "#pageSame"), text(w, "#txt"), text(w, "#routerRenderCount")])).
       test()
     it "should handle direct link to /#/foo", zhain().
-      window_open("/#/foo", (w) -> w.router.initDone; eq(["/foo", "1"], [text(w, "#txt"), text(w, "#routerRenderCount")])).
+      window_open("/#/foo", (w) -> w.router.initDone; eq(["/#/foo", "/foo", "1"], [url(w), text(w, "#txt"), text(w, "#routerRenderCount")])).
+      click("#pageSame", (w) -> eq("Ok!", text(w, "#pageSame"))).
+      click("#link_foo", (w) -> eq(["/foo", "Ok!", "/foo", "2"], [url(w), text(w, "#pageSame"), text(w, "#txt"), text(w, "#routerRenderCount")])).
       test()
