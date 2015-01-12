@@ -1,4 +1,4 @@
-# Sinatra route syntax + pushState and hashbang support + plain urls
+# Sinatra route syntax + pushstate and hashbang support + plain urls
 
 ki-router.js is a [Sinatra](http://www.sinatrarb.com/) inspired javascript router with browser support.
 When a user opens a page or clicks a link, ki-router.js parses the associated url and tries to find a a matching url
