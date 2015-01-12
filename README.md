@@ -1,20 +1,27 @@
-# Sinatra route syntax + pushState/hashbang support + plain urls
+# Sinatra route syntax + pushState and hashbang support + plain urls
 
-[Sinatra](http://www.sinatrarb.com/) has a powerful url routing syntax that is used to identify different views in the application and the
-parameters used by the view. Javascript based apps can benefit from the same approach by using ki-router.js.
+ki-router.js is a [Sinatra](http://www.sinatrarb.com/) inspired javascript router with browser support.
+When a user opens a page or clicks a link, ki-router.js parses the associated url and tries to find a a matching url
+pattern. First matching url is parsed for parameters and ki-router.js calls a function with the parameters.
+
+```javascript
+router = KiRouter.router();
+router.add("/say/*/to/:name", function (params) { say_hello( params.splat, params.name ) } );
+router.exec("/say/Hello 123/456/to/world") // say_hello is called with {name: "world", splat: "Hello 123/456"}
+```
 
 # Why should you use it?
 
 ki-router.js gives you:
 * Bookmarkable and clean REST like urls: /book/123
 * Url parameter parsing: params.id => "123"
-* Centralized and clear control structure for the application
 * No dependencies on other javascript libraries
+* Centralized and clear control structure for the application
 
 ki-router.js makes it easy to create a modern javascript app in a clean way:
 * Use regular links in HTML. This leads to cleaner javascript and there is no more need to bind view change listeners in javascript
-* Browser support: Chrome, Firefox, Safari, IE10/9/8 and Opera.
-* Gracefully degrading web app with support for even older browsers: pushState -> hashbang -> javascript but no pushstate/hashbang -> no javascript
+* Browser support: Chrome, Firefox, Safari, IE10/9/8, Opera
+* Gracefully degrading web app with support for even older browsers: pushstate -> hashbang -> javascript but no pushstate/hashbang -> no javascript
 
 All you need to do to is:
 * Include ki-router.js
