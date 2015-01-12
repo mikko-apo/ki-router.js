@@ -12,8 +12,8 @@ ki-router.js gives you:
 
 ki-router.js also makes it easy to create a modern single page app in a clean way:
 * Use regular links in HTML. This leads to cleaner javascript and there is no more need to bind view change listeners in javascript
-* Browser support. Firefox, Safari, Chrome, IE10/9/8. Older browsers are also supported if the backend server is able to render the page fully
-* Gracefully degrading web app with different alternative strategies (pushState -> hashBang -> javascript but no pushState/hashBang -> no javascript)
+* Browser support: Chrome, Firefox, Safari, IE10/9/8, Opera.
+* Gracefully degrading web app with support for even older browsers: pushState -> hashBang -> javascript but no pushState/hashBang -> no javascript
 
 To use it all you need to do to is:
 * Include ki-router.js
@@ -34,71 +34,6 @@ Check out the demo at http://ki-router.ki-flow.org/
 * Bower: bower install --save ki-router
 * Coffeescript (original source): [src/ki-router.coffee](https://raw.github.com/mikko-apo/ki-router.js/master/src/ki-router.coffee)
 * Javascript: [dist/ki-router.js](https://raw.github.com/mikko-apo/ki-router.js/master/dist/ki-router.js)
-
-# Five ways to use ki-router.js
-
-ki-router.js is good for parsing URL like strings and it works without a browser.
-You can configure any number of urls and functions. For example, like this:
-
-```javascript
-router = KiRouter.router();
-router.add("/say/*/to/:name", function (params) { say_hello( params.splat, params.name ) } );
-router.exec("/say/Hello 123/456/to/world")
-```
-
-You can use ki-router.js to trigger init functions for different views:
-
-```javascript
-var router = KiRouter.router();
-router.add("/prelaunch", function (params) { prelaunch.init() } );
-router.add("/signup", function (params) { signup.init() } );
-$( document ).ready(function() {
-    router.renderInitialView();
-});
-```
-
-For single page apps, ki-router.js supports three kinds modes:
-
-* HistoryApi
-* Hashbang
-* Transparent
-
-All single page app modes intercept clicks to A tags if the href matches a known route.
-
-## HistoryApi mode
-
-This is the best mode if you need search engine support and nice urls. In HistoryApi mode ki-router.js intercepts link clicks
-only if the browser supports the History API. With older browsers (IE9/8) each link click forces browser to get a new page
-and ki-router.js renders the correct view. Check transparent mode if you want fallback to hashbangs.
-
-Additional things to consider:
-
-* Backend server needs be configured so that it returns a page for all possible urls. The page can have same content if you use ki-router.js to render the correct view.
-* If you need search engine support each page rendered by the server needs to include the relevant content for that specific page.
-* Hashbangs are not used because search engine support would need to be implemented for both regular links and _escaped_fragments_
-
-## Hashbang mode
-
-Hashbang mode is useful if you either prefer hashbang urls or want to serve your application from a single url or file.
-
-Additional things to consider:
-* Links in HTML document can be in either plain format or prefixed with "#!". Both of these will work: "/path/123" and "#!/path/123"
-* There is no fallback for browsers without "onhashchange" support or browsers without javascript support
-
-## Transparent mode
-
-Transparent mode uses HTML5 History API to simulate a regular link based web app.
-If the browser doesn't support the History Api, it switches to using hashbangs.
-This mode is useful if you want to optimize network traffic as ki-router.js tries to make even older browser work
-as single page apps. It's also the only mode to use if your application has more state than is available in the url.
-
-Additional things to consider:
-
-* history.pushState and hashbang (#!) support. ki-route.js is able to convert urls between those two formats if urls are copied between browsers.
-* Gracefully degrading web app (pushState -> hashBang -> javascript but no pushState/hashBang -> no javascript)
-* Search engine support is tricky: Servers needs to return correct content for the url and support _escaped_fragments_ urls also
-* If the browser doesn't support javascript all links will lead back to server and server needs to render the correct page
-* Backend server needs to have a wildcard url that returns the same page for all possible links
 
 # How to use it?
 
@@ -121,7 +56,7 @@ Then you need to include ki-router.js
 
 ## Router configuration
 
-Routing configuration defines how different urls are rendered
+Routing configuration defines how different urls are handled:
 
 ```javascript
 router = KiRouter.router();
@@ -149,18 +84,46 @@ Browser is redirected to that address and application pages are rendered using t
 `router.paramVerifier` is a function that can be used to sanitize all the parameters. This is useful if any of the parameters
 is used to render HTML. Attacker may otherwise encode HTML in the url that is rendered to the page.
 
-### Transparent routing
+`router.transparentRouting()` attaches listeners for clicks, popstate and hashchange events and renders the initial view based on browser url.
 
-`router.transparentRouting()` sets up the routing on the browser:
+# Different ways to use ki-router.js
 
-* it registers a click handler for A tags that handles all clicks to known links
-* it registers a listener to handle url back & forward buttons: by using onpopstate or onhashchange
-* it renders the view based on the current url
+## Hashbang mode
 
-Note:
+This is the regular single page app mode. The app uses hash (#/user/1) or hashbang (#!/user/1) urls.
+Hashbang mode is useful if you prefer hash urls or want to serve your application from a single url or file.
 
-To enable bookmarkable urls, you need to configure the backend server with a wildcard url that returns the main page
-for all possible urls. That page should load the router configuration and then router.transparentRouting() renders the correct page.
+Additional things to consider:
+* Links in HTML document can be in either plain format or prefixed with "#!". Both of these will work: "/path/123" and "#!/path/123"
+* Currently there is no support for browsers without "onhashchange"
+* Needs javascript-support from browser because server does not get access to anchor
+
+```javascript
+router.hashbangRouting()
+```
+
+Ki-router serves hash urls by default. Hashbang urls are enabled with following:
+
+```javascript
+router.serverSupportsEscapedFragment = true
+```
+
+## Transparent mode
+
+Transparent mode uses HTML5 History API to simulate a regular link based web app.
+If the browser doesn't support the History Api, it switches to using hashbangs.
+
+This mode is useful if you want to optimize network traffic. It also provides a gracefully
+degrading web app: application manages different views with History API or hashbangs. If there
+is no javascript support, links are handled by the backend server.
+
+Additional things to consider:
+
+* history.pushState and hashbang (# or #!) support. ki-route.js is able to convert urls between those two formats if urls are copied between browsers.
+* Gracefully degrading web app (pushState -> hashBang -> javascript but no pushState/hashBang -> no javascript)
+* Search engine support is tricky: Servers needs to return correct content for the url and support _escaped_fragments_ urls also
+* If the browser doesn't support javascript all links will lead back to server and server needs to render the correct page
+* Backend server needs to have a wildcard url that returns the same page for all possible links to enable bookmarkable urls or refreshes
 
 ```ruby
 get '/*' do
@@ -168,17 +131,23 @@ get '/*' do
 end
 ```
 
-### Hashbang routing
+## HistoryApi mode
 
-```javascript
-router.hashbangRouting()
-```
+This is the best mode if you want nice plain urls. In HistoryApi mode ki-router.js intercepts link clicks
+only if the browser supports the History API. With older browsers (IE9/8) without History API support each link click forces browser to get a new page
+and ki-router.js renders the correct view.
 
-### HistoryApi routing
+Additional things to consider:
+
+* Backend server needs be configured so that it returns a page for all possible urls. The page can have same content if you use ki-router.js to render the correct view.
+* If you need search engine support each page rendered by the server needs to include the relevant content for that specific page.
+* Hashbangs are not used because search engine support would need to be implemented for both regular links and _escaped_fragments_
 
 ```javascript
 router.historyApiRouting()
 ```
+
+# Extra api
 
 ## Route metadata
 

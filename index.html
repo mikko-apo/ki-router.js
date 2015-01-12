@@ -110,6 +110,11 @@
 
         </td>
     </tr>
+    <tr>
+        <td colspan="2">
+            <pre id="navigator.txt"></pre>
+        </td>
+    </tr>
 </table>
 
 <script type="text/javascript" src="dist/ki-router.js"></script>
@@ -132,6 +137,11 @@
         }
     }
     setText("window.name", window.name);
+    setText("navigator.txt", [
+        "navigator.userAgent: " + navigator.userAgent,
+        "navigator.language: " + navigator.language,
+        "navigator.languages: " + navigator.languages
+    ].join("\n"));
 
     var router = KiRouter.router();
 
@@ -147,19 +157,16 @@
         hashchangecount += 1;
         setText('hashchange.count', hashchangecount);
     });
-
-    var renderCount = 0;
-    router.addPostExecutionListener(function() {
-        setText("routerRenderCount", router.renderCount);
-    })
-
-    router.hashBaseUrl = "/index.html";
     router.add("/index.html", function (params) {
         return set(this.path)
     });
     router.add("/foo", function (params) {
         return set(this.path)
     });
+    router.addPostExecutionListener(function () {
+        setText("routerRenderCount", router.renderCount);
+    })
+    router.hashBaseUrl = "/index.html";
     router.debug = true;
     //    router.pushStateSupport = false;
     router.transparentRouting();
