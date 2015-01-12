@@ -6,25 +6,25 @@ parameters used by the view. Javascript based apps can benefit from the same app
 # Why should you use it?
 
 ki-router.js gives you:
-* Bookmarkable and clean REST like urls for example: /book/123
+* Bookmarkable and clean REST like urls: /book/123
 * Url parameter parsing: params.id => "123"
 * Centralized and clear control structure for the application
+* No dependencies on other javascript libraries
 
-ki-router.js also makes it easy to create a modern single page app in a clean way:
+ki-router.js makes it easy to create a modern javascript app in a clean way:
 * Use regular links in HTML. This leads to cleaner javascript and there is no more need to bind view change listeners in javascript
-* Browser support: Chrome, Firefox, Safari, IE10/9/8, Opera.
-* Gracefully degrading web app with support for even older browsers: pushState -> hashBang -> javascript but no pushState/hashBang -> no javascript
+* Browser support: Chrome, Firefox, Safari, IE10/9/8 and Opera.
+* Gracefully degrading web app with support for even older browsers: pushState -> hashbang -> javascript but no pushstate/hashbang -> no javascript
 
-To use it all you need to do to is:
+All you need to do to is:
 * Include ki-router.js
-* Configure router routes
-* Use plain HTML with regular a href links (single page app mode)
+* Use plain HTML with regular href links
+* Configure router routes and start the router
 
 Additional technical features include:
-* Support for browser keyboard shortcuts so users can open new tabs and windows easily: ctrl, shift, alt and meta keys
+* Support for browser keyboard shortcuts. Users can open new tabs and windows easily: ctrl, shift, alt and meta keys
 * Support for A tag's target attribute: ___blank, ___self, ___parent, ___top, window name
 * Simple integration with other javascript frameworks. Attaches listeners to document level, does not interfere with events handled by application's javascript
-* No dependencies on other javascript libraries
 
 Check out the demo at http://ki-router.ki-flow.org/
 
@@ -33,7 +33,7 @@ Check out the demo at http://ki-router.ki-flow.org/
 * Npm: npm install --save ki-router
 * Bower: bower install --save ki-router
 * Coffeescript (original source): [src/ki-router.coffee](https://raw.github.com/mikko-apo/ki-router.js/master/src/ki-router.coffee)
-* Javascript: [dist/ki-router.js](https://raw.github.com/mikko-apo/ki-router.js/master/dist/ki-router.js)
+* Javascript: [dist/ki-router.js](https://raw.github.com/mikko-apo/ki-router.js/master/dist/ki-router.js) [dist/ki-router.min.js](https://raw.github.com/mikko-apo/ki-router.js/master/dist/ki-router.min.js)
 
 # How to use it?
 
@@ -102,11 +102,13 @@ Additional things to consider:
 router.hashbangRouting()
 ```
 
-Ki-router serves hash urls by default. Hashbang urls are enabled with following:
+When user clicks links in hashbang mode, ki-router.js generates hash (#) links. Hashbang urls are enabled with following:
 
 ```javascript
 router.serverSupportsEscapedFragment = true
 ```
+
+More information: https://developers.google.com/webmasters/ajax-crawling/docs/getting-started
 
 ## Transparent mode
 
@@ -133,18 +135,28 @@ end
 
 ## HistoryApi mode
 
-This is the best mode if you want nice plain urls. In HistoryApi mode ki-router.js intercepts link clicks
+This is the best mode if you want nice plain urls and none of that hashbang mess. In HistoryApi mode ki-router.js intercepts link clicks
 only if the browser supports the History API. With older browsers (IE9/8) without History API support each link click forces browser to get a new page
 and ki-router.js renders the correct view.
 
 Additional things to consider:
 
 * Backend server needs be configured so that it returns a page for all possible urls. The page can have same content if you use ki-router.js to render the correct view.
-* If you need search engine support each page rendered by the server needs to include the relevant content for that specific page.
-* Hashbangs are not used because search engine support would need to be implemented for both regular links and _escaped_fragments_
+* Search engine support is still tricky, but a bit easier: Server needs to return correct content for the url
 
 ```javascript
 router.historyApiRouting()
+```
+
+## Without browser
+
+ki-router.js is good for parsing URL like strings and it works without a browser.
+You can configure any number of urls and functions, like this:
+
+```javascript
+router = KiRouter.router();
+router.add("/say/*/to/:name", function (params) { say_hello( params.splat, params.name ) } );
+router.exec("/say/Hello 123/456/to/world")
 ```
 
 # Extra api
