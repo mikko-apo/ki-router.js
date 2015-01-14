@@ -19,7 +19,8 @@ limitations under the License.
 "use strict"
 
 # Bugs
-# - IE9, use hashEvent to trigger rendering
+# - IE9, use hashEvent to trigger first rendering
+# - ki-router should catch clicks for # and #! urls
 # TODO:
 # - Restore scroll position
 # - Assign multiple routes with one invocation
