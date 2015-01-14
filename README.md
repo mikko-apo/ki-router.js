@@ -15,12 +15,13 @@ router.exec("/say/Hello 123/456/to/world") // say_hello is called with {name: "w
 ki-router.js gives you:
 * Bookmarkable and clean REST like urls: /book/123
 * Url parameter parsing: params.id => "123"
+* Centralized and clear control structure for your application
+* Support for browser features: bookmarks, back and forward buttons, History API, hashchange
+* Browser support: Chrome, Firefox, Safari, IE10/9/8/7/6, Opera
 * No dependencies on other javascript libraries
-* Centralized and clear control structure for the application
 
 ki-router.js makes it easy to create a modern javascript app in a clean way:
 * Use regular links in HTML. This leads to cleaner javascript and there is no more need to bind view change listeners in javascript
-* Browser support: Chrome, Firefox, Safari, IE10/9/8/7/6, Opera
 * Gracefully degrading web app with support for even older browsers: pushstate -> hashbang -> javascript but no pushstate/hashbang -> no javascript
 
 All you need to do to is:
