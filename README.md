@@ -20,7 +20,7 @@ ki-router.js gives you:
 
 ki-router.js makes it easy to create a modern javascript app in a clean way:
 * Use regular links in HTML. This leads to cleaner javascript and there is no more need to bind view change listeners in javascript
-* Browser support: Chrome, Firefox, Safari, IE10/9/8, Opera
+* Browser support: Chrome, Firefox, Safari, IE10/9/8/7/6, Opera
 * Gracefully degrading web app with support for even older browsers: pushstate -> hashbang -> javascript but no pushstate/hashbang -> no javascript
 
 All you need to do to is:
@@ -234,6 +234,26 @@ You can also connect to ports 80 (http), 443 (https), 8090 (http) and 8443 (http
 ```bash
 ./grunt connect build watch
 ```
+
+# IE6 and IE7 support
+
+ki-router.js supports IE6 and IE7. There are two possible strategies:
+
+* Server returns page for each click, ki-router.js renders correct view
+
+If you want plain urls ki-router.js works like that straight out of the box.
+When user clicks a link on older browsers without hashchange support,
+ki-router.js lets the browser handle the link. Browser loads the page from server
+and the server should return a page that starts ki-router. ki-router.js then renders the matching view.
+
+see HistoryApi mode for more information
+
+* hashchange emulation
+
+ki-router.js does not provide hashchange emulation, but there are a few libraries that bring
+the feature to older browsers. If you need single page app with hash urls on IE6 this is the way to go.
+There will also be less network traffic but as a downside the application gets an additional
+dependency on the emulation library.
 
 # Release History
 * 2015-01-12 1.1.17 Renamed npm package to ki-router, no changes to 1.1.16
