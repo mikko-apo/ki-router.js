@@ -143,7 +143,7 @@
         "navigator.languages: " + navigator.languages
     ].join("\n"));
 
-    var router = KiRouter.router();
+    var router = window.router = KiRouter.router();
 
     var popstatecount = 0;
     router.addListener(window, "popstate", function (e) {

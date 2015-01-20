@@ -1,13 +1,21 @@
 "use strict"
 
-eq = (a, b) ->
-  a = JSON.stringify(a)
-  b = JSON.stringify(b)
-  if a != b
-    throw new Error(a + " is not equal to " + b)
+eq = (was, expected) ->
+  was = JSON.stringify(was)
+  expected = JSON.stringify(expected)
+  if was != expected
+    throw new Error(was + " is not equal to expected " + expected)
 
-window.Zhain.prototype.test = (done) ->
-  @end (err) -> done(err)
+window.Zhain.prototype.test = () ->
+  me = @
+  (done) ->
+    me.run (err) ->
+      done(err)
+      if !err
+        if @iframe
+          document.body.removeChild(@iframe)
+        else if @w
+         @w.close()
 
 window.Zhain.prototype.retry = (done, attempts, fn) ->
   try
@@ -21,9 +29,16 @@ window.Zhain.prototype.retry = (done, attempts, fn) ->
 
 retryCount = 30
 
-window.Zhain.prototype.window_open = (url, checker) ->
+window.Zhain.prototype.window = (url, checker, openInWindow) ->
   return @do (done) ->
-    if !(w = @w = window.open(url, "test_window"))
+    if !@windowName
+      @windowName = "test" + Math.random()
+      if !openInWindow
+        @iframe = document.createElement("iframe")
+        @iframe.setAttribute("style", "width: 100%; height: 300px;")
+        @iframe.setAttribute("name", @windowName)
+        document.body.appendChild(@iframe)
+    if !(w = @w = window.open(url, @windowName))
       throw new Error("Could not open pop-up window. Please enable popups.")
     callback = -> window.Zhain.prototype.retry(done, retryCount, -> checker(w))
     setTimeout callback, 10
@@ -51,10 +66,11 @@ url = (w) ->
 
 pState = (w, pageUrl, renderCount, txt, pageSame) ->
   w.router.initDone
-  eq([pageUrl, "#{renderCount}", txt, pageSame],
-    [url(w), text(w, "#routerRenderCount"), text(w, "#txt"), text(w, "#pageSame") == "Ok!"])
+  eq([url(w), text(w, "#routerRenderCount"), text(w, "#txt"), text(w, "#pageSame") == "Ok!"],
+    [pageUrl, "#{renderCount}", txt, pageSame])
 
 describe "KiRouter", ->
+  this.timeout(6000);
   describe "should execute operation based on matched matchedRoute", ->
     router = KiRouter.router()
     router.disableUrlUpdate = true
@@ -105,28 +121,39 @@ describe "KiRouter", ->
       catch
       eq(["uups!"], errors)
   describe "browser integration", ->
-    beforeEach (done) ->
-      window.open("about:blank", "test_window")
-      setTimeout done, 10
     it "should render correct view", zhain().
-      window_open("/", (w) -> pState(w, "/", "0", "No path!", false)).
-      window_open("/index.html", (w) -> pState(w, "/index.html","1","/index.html",false)).
+      window("/", (w) -> pState(w, "/", "0", "No path!", false)).
+      window("/#/index.html", (w) -> pState(w, "/#/index.html","1","/index.html",false)).
+      window("/index.html", (w) -> pState(w, "/index.html","1","/index.html",false)).
+      window("/#!/index.html", (w) -> pState(w, "/#!/index.html","1","/index.html",false)).
       test()
     it "should handle click to /foo without reloading page", zhain().
-      window_open("/", (w) -> pState(w, "/", "0", "No path!", false)).
+      window("/", (w) -> pState(w, "/", "0", "No path!", false)).
       click("#pageSame", (w) -> pState(w, "/","0","No path!",true)).
       click("#link_foo", (w) -> pState(w, "/foo","1","/foo",true)).
-      click("#link_index", (w) -> pState(w, "/index.html","2","/index.html",true)).
-      click("#link_foo", (w) -> pState(w, "/foo","3","/foo",true)).
-      back((w) -> pState(w, "/index.html", "4", "/index.html", true)).
+      click("#link_foo", (w) -> pState(w, "/foo","2","/foo",true)).
+      click("#link_index", (w) -> pState(w, "/index.html","3","/index.html",true)).
+      click("#link_foo", (w) -> pState(w, "/foo","4","/foo",true)).
+      back((w) -> pState(w, "/index.html", "5", "/index.html", true)).
       test()
     it "should handle direct link to /#!/foo", zhain().
-      window_open("/#!/foo", (w) -> pState(w, "/#!/foo", "1", "/foo", false)).
+      window("/#!/foo", (w) -> pState(w, "/#!/foo", "1", "/foo", false)).
       click("#pageSame", (w) -> pState(w, "/#!/foo", "1", "/foo", true)).
       click("#link_foo", (w) -> pState(w, "/foo", "2", "/foo", true)).
       test()
     it "should handle direct link to /#/foo", zhain().
-      window_open("/#/foo", (w) -> pState(w, "/#/foo", "1", "/foo", false)).
+      window("/#/foo", (w) -> pState(w, "/#/foo", "1", "/foo", false)).
       click("#pageSame", (w) -> pState(w, "/#/foo", "1", "/foo", true)).
       click("#link_foo", (w) -> pState(w, "/foo", "2", "/foo", true)).
+      test()
+  describe "# routes with hashBaseUrl", ->
+    it "should handle click to /foo without reloading page", zhain().
+      window("/", ((w) -> pState(w, "/", "0", "No path!", false)), false).
+      click("#pageSame", (w) -> pState(w, "/","0","No path!",true); w.router.pushStateSupport=false).
+      click("#link_foo", (w) -> pState(w, "/index.html#/foo","1","/foo",false)).
+      click("#pageSame", (w) -> pState(w, "/index.html#/foo","1","/foo",true); w.router.pushStateSupport=false).
+      click("#link_foo", (w) -> pState(w, "/index.html#/foo","2","/foo",true)).
+      click("#link_index", (w) -> pState(w, "/index.html#/index.html","3","/index.html",true)).
+      click("#link_foo", (w) -> pState(w, "/index.html#/foo","4","/foo",true)).
+      back((w) -> pState(w, "/index.html#/index.html", "4", "/foo", true)). # bug, should be 5, /index.html
       test()

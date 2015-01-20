@@ -162,21 +162,19 @@ class KiRoutes
 
   # Notices when browser goes back or forward in history
   attachLocationChangeListener: =>
-    if @pushStateSupport
-      @addListener window, "popstate", (event) =>
-        if @updateCount > 0 # Chrome sends popstate event when rendering page, don't render unless really needed
-          href = window.location.pathname
-          @log("Rendering popstate", href)
-          @renderUrl(href)
-        return
-    else
+    @addListener window, "popstate", (event) =>
+      if @pushStateSupport && @updateCount > 0 # Chrome sends popstate event when rendering page, don't render unless really needed
+        href = window.location.pathname
+        @log("Rendering popstate", href)
+        @renderUrl(href)
+      return
+    @addListener window, "hashchange", (event) =>
       if @hashchangeSupport
-        @addListener window, "hashchange", (event) =>
-          href = @getHashUrl()
-          if href
-            @log("Rendering hashchange", href)
-            @renderUrl(href)
-          return
+        href = @getHashUrl()
+        if href
+          @log("Rendering hashchange", href)
+          @renderUrl(href)
+      return
     return
 
   getHashUrl: =>
